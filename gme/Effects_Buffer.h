@@ -6,7 +6,9 @@
 
 #include "Multi_Buffer.h"
 
-#include <vector>
+//#include <vector>
+
+#include "vector.h"
 
 // Effects_Buffer uses several buffers and outputs stereo sample pairs.
 class Effects_Buffer : public Multi_Buffer {
@@ -16,7 +18,7 @@ public:
 	// If center_only is true, only center buffers are created and
 	// less memory is used.
 	Effects_Buffer( int nVoices = 1, bool center_only = false );
-	
+
 	// Channel  Effect    Center Pan
 	// ---------------------------------
 	//    0,5    reverb       pan_1
@@ -24,7 +26,7 @@ public:
 	//    2,7    echo         -
 	//    3      echo         -
 	//    4      echo         -
-	
+
 	// Channel configuration
 	struct config_t {
 		double pan_1;           // -1.0 = left, 0.0 = center, 1.0 = right
@@ -37,11 +39,11 @@ public:
 		bool effects_enabled;   // if false, use optimized simple mixer
 		config_t();
 	};
-	
+
 	// Set configuration of buffer
 	virtual void config( const config_t& );
 	void set_depth( double );
-	
+
 public:
 	~Effects_Buffer();
 	blargg_err_t set_sample_rate( long samples_per_sec, int msec = blip_default_length );
@@ -56,20 +58,32 @@ private:
 	typedef long fixed_t;
 	int max_voices;
 	enum { max_buf_count = 7 };
-	std::vector<Blip_Buffer> bufs;
+#if 0
+	typedef std::vector<blip_sample_t> BlipSampleVector;
+	typedef std::vector<std::vector<blip_sample_t> > BlipSampleVectorVector;
+	typedef std::vector<int> IntVector;
+	typedef std::vector<Blip_Buffer> BlipBufferVector;
+	typedef std::vector<channel_t> ChannelVector;
+#endif
+	DECLARE_OBJECTVECTOR(BlipBufferVector, Blip_Buffer)
+	BlipBufferVector bufs;
 	enum { chan_types_count = 3 };
-	std::vector<channel_t> chan_types;
+	DECLARE_OBJECTVECTOR(ChannelVector, channel_t)
+	ChannelVector chan_types;
 	config_t config_;
 	long stereo_remain;
 	long effect_remain;
 	int buf_count;
 	bool effects_enabled;
-	
-	std::vector<std::vector<blip_sample_t> > reverb_buf;
-	std::vector<std::vector<blip_sample_t> > echo_buf;
-	std::vector<int> reverb_pos;
-	std::vector<int> echo_pos;
-	
+
+	DECLARE_OBJECTVECTOR(BlipSampleVector, blip_sample_t)
+	DECLARE_OBJECTVECTOR(BlipSampleVectorVector, BlipSampleVector)
+	BlipSampleVectorVector reverb_buf;
+	BlipSampleVectorVector echo_buf;
+	DECLARE_SIMPLEVECTOR(IntVector, int)
+	IntVector reverb_pos;
+	IntVector echo_pos;
+
 	struct {
 		fixed_t pan_1_levels [2];
 		fixed_t pan_2_levels [2];
@@ -80,7 +94,7 @@ private:
 		int reverb_delay_r;
 		fixed_t reverb_level;
 	} chans;
-	
+
 	void mix_mono( blip_sample_t*, blargg_long );
 	void mix_stereo( blip_sample_t*, blargg_long );
 	void mix_enhanced( blip_sample_t*, blargg_long );

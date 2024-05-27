@@ -4,7 +4,7 @@
 
 #include "blargg_endian.h"
 #include <string.h>
-#include <algorithm>
+//#include <algorithm>
 
 /* Copyright (C) 2006 Shay Green. This module is free software; you
 can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -19,15 +19,23 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
-static int const timer_mask  = 0x04;
-static int const vdp_mask    = 0x02;
-static int const i_flag_mask = 0x04;
-static int const unmapped    = 0xFF;
+int const timer_mask  = 0x04;
+int const vdp_mask    = 0x02;
+int const i_flag_mask = 0x04;
+int const unmapped    = 0xFF;
 
-static long const period_60hz = 262 * 455L; // scanlines * clocks per scanline
+long const period_60hz = 262 * 455L; // scanlines * clocks per scanline
 
+#ifndef min
+#define min(x,y) ((x > y) ? y : x)
+#endif
+#ifndef max
+#define max(x,y) ((y > x) ? y : x)
+#endif
+#if 0
 using std::min;
 using std::max;
+#endif
 
 Hes_Emu::Hes_Emu()
 {
@@ -119,7 +127,7 @@ struct Hes_File : Gme_Info_
 	
 	blargg_err_t load_( Data_Reader& in )
 	{
-		blaarg_static_assert( offsetof (header_t,fields) == Hes_Emu::header_size + 0x20, "HES header layout is incorrect!" );
+		assert( offsetof (header_t,fields) == Hes_Emu::header_size + 0x20, "HES header layout is incorrect!" );
 		blargg_err_t err = in.read( &h, sizeof h );
 		if ( err )
 			return (err == in.eof_error ? gme_wrong_file_type : err);
@@ -144,7 +152,7 @@ extern gme_type_t const gme_hes_type = &gme_hes_type_;
 
 blargg_err_t Hes_Emu::load_( Data_Reader& in )
 {
-	blaarg_static_assert( offsetof (header_t,unused [4]) == header_size, "HES header layout is incorrect!" );
+	assert( offsetof (header_t,unused [4]) == header_size, "HES header layout is incorrect!" );
 	RETURN_ERR( rom.load( in, header_size, &header_, unmapped ) );
 	
 	RETURN_ERR( check_hes_header( header_.tag ) );
@@ -220,8 +228,8 @@ blargg_err_t Hes_Emu::start_track_( int track )
 {
 	RETURN_ERR( Classic_Emu::start_track_( track ) );
 	
-	memset( ram, 0, sizeof ram ); // some HES music relies on zero fill
-	memset( sgx, 0, sizeof sgx );
+	blarg_memset( ram, 0, sizeof ram ); // some HES music relies on zero fill
+	blarg_memset( sgx, 0, sizeof sgx );
 	
 	apu.reset();
 	cpu::reset();

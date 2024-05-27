@@ -3,7 +3,7 @@
 #include "Gb_Apu.h"
 
 #include <string.h>
-#include <algorithm>
+//#include <algorithm>
 
 /* Copyright (C) 2003-2006 Shay Green. This module is free software; you
 can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -18,26 +18,32 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
-static unsigned const vol_reg    = 0xFF24;
-static unsigned const status_reg = 0xFF26;
+unsigned const vol_reg    = 0xFF24;
+unsigned const status_reg = 0xFF26;
 
+#ifndef min
+#define min(x,y) ((x > y) ? y : x)
+#endif
+#ifndef max
+#define max(x,y) ((y > x) ? y : x)
+#endif
+#if 0
 using std::min;
 using std::max;
+#endif
 
 Gb_Apu::Gb_Apu()
 {
-	memset(regs, 0, sizeof(regs));
-	
 	square1.synth = &square_synth;
 	square2.synth = &square_synth;
 	wave.synth  = &other_synth;
 	noise.synth = &other_synth;
-	
+
 	oscs [0] = &square1;
 	oscs [1] = &square2;
 	oscs [2] = &wave;
 	oscs [3] = &noise;
-	
+
 	for ( int i = 0; i < osc_count; i++ )
 	{
 		Gb_Osc& osc = *oscs [i];
@@ -48,7 +54,7 @@ Gb_Apu::Gb_Apu()
 		osc.outputs [2] = 0;
 		osc.outputs [3] = 0;
 	}
-	
+
 	set_tempo( 1.0 );
 	volume( 1.0 );
 	reset();
@@ -82,7 +88,7 @@ void Gb_Apu::update_volume()
 	// TODO: doesn't handle differing left/right global volume (support would
 	// require modification to all oscillator code)
 	int data = regs [vol_reg - start_addr];
-	double vol = (max( data & 7, data >> 4 & 7 ) + 1) * volume_unit;
+	double vol = (max( (data & 7), ((data >> 4) & 7) ) + 1) * volume_unit;
 	square_synth.volume( vol );
 	other_synth.volume( vol );
 }
@@ -110,26 +116,26 @@ void Gb_Apu::reset()
 	next_frame_time = 0;
 	last_time       = 0;
 	frame_count     = 0;
-	
+
 	square1.reset();
 	square2.reset();
 	wave.reset();
 	noise.reset();
 	noise.bits = 1;
 	wave.wave_pos = 0;
-	
+
 	// avoid click at beginning
 	regs [vol_reg - start_addr] = 0x77;
 	update_volume();
-	
+
 	regs [status_reg - start_addr] = 0x01; // force power
 	write_register( 0, status_reg, 0x00 );
-	
+
 	static unsigned char const initial_wave [] = {
 		0x84,0x40,0x43,0xAA,0x2D,0x78,0x92,0x3C, // wave table
 		0x60,0x59,0x59,0xB0,0x34,0xB8,0x2E,0xDA
 	};
-	memcpy( wave.wave, initial_wave, sizeof initial_wave );
+	blarg_memcpy( wave.wave, initial_wave, sizeof initial_wave );
 }
 
 void Gb_Apu::run_until( blip_time_t end_time )
@@ -137,13 +143,13 @@ void Gb_Apu::run_until( blip_time_t end_time )
 	require( end_time >= last_time ); // end_time must not be before previous time
 	if ( end_time == last_time )
 		return;
-	
+
 	while ( true )
 	{
 		blip_time_t time = next_frame_time;
 		if ( time > end_time )
 			time = end_time;
-		
+
 		// run oscillators
 		for ( int i = 0; i < osc_count; ++i )
 		{
@@ -165,18 +171,18 @@ void Gb_Apu::run_until( blip_time_t end_time )
 			}
 		}
 		last_time = time;
-		
+
 		if ( time == end_time )
 			break;
-		
+
 		next_frame_time += frame_period;
-		
+
 		// 256 Hz actions
 		square1.clock_length();
 		square2.clock_length();
 		wave.clock_length();
 		noise.clock_length();
-		
+
 		frame_count = (frame_count + 1) & 3;
 		if ( frame_count == 0 )
 		{
@@ -185,7 +191,7 @@ void Gb_Apu::run_until( blip_time_t end_time )
 			square2.clock_envelope();
 			noise.clock_envelope();
 		}
-		
+
 		if ( frame_count & 1 )
 			square1.clock_sweep(); // 128 Hz action
 	}
@@ -195,10 +201,10 @@ void Gb_Apu::end_frame( blip_time_t end_time )
 {
 	if ( end_time > last_time )
 		run_until( end_time );
-	
+
 	assert( next_frame_time >= end_time );
 	next_frame_time -= end_time;
-	
+
 	assert( last_time >= end_time );
 	last_time -= end_time;
 }
@@ -206,16 +212,16 @@ void Gb_Apu::end_frame( blip_time_t end_time )
 void Gb_Apu::write_register( blip_time_t time, unsigned addr, int data )
 {
 	require( (unsigned) data < 0x100 );
-	
+
 	int reg = addr - start_addr;
 	if ( (unsigned) reg >= register_count )
 		return;
-	
+
 	run_until( time );
-	
+
 	int old_reg = regs [reg];
 	regs [reg] = data;
-	
+
 	if ( addr < vol_reg )
 	{
 		write_osc( reg / 5, reg, data );
@@ -231,22 +237,22 @@ void Gb_Apu::write_register( blip_time_t time, unsigned addr, int data )
 			if ( amp && osc.enabled && osc.output )
 				other_synth.offset( time, -amp, osc.output );
 		}
-		
+
 		if ( wave.outputs [3] )
 			other_synth.offset( time, 30, wave.outputs [3] );
-		
+
 		update_volume();
-		
+
 		if ( wave.outputs [3] )
 			other_synth.offset( time, -30, wave.outputs [3] );
-		
+
 		// oscs will update with new amplitude when next run
 	}
 	else if ( addr == 0xFF25 || addr == status_reg )
 	{
 		int mask = (regs [status_reg - start_addr] & 0x80) ? ~0 : 0;
 		int flags = regs [0xFF25 - start_addr] & mask;
-		
+
 		// left/right assignments
 		for ( int i = 0; i < osc_count; i++ )
 		{
@@ -264,7 +270,7 @@ void Gb_Apu::write_register( blip_time_t time, unsigned addr, int data )
 					other_synth.offset( time, -amp, old_output );
 			}
 		}
-		
+
 		if ( addr == status_reg && data != old_reg )
 		{
 			if ( !(data & 0x80) )
@@ -292,11 +298,11 @@ void Gb_Apu::write_register( blip_time_t time, unsigned addr, int data )
 int Gb_Apu::read_register( blip_time_t time, unsigned addr )
 {
 	run_until( time );
-	
+
 	int index = addr - start_addr;
 	require( (unsigned) index < register_count );
 	int data = regs [index];
-	
+
 	if ( addr == status_reg )
 	{
 		data = (data & 0x80) | 0x70;
@@ -307,6 +313,6 @@ int Gb_Apu::read_register( blip_time_t time, unsigned addr )
 				data |= 1 << i;
 		}
 	}
-	
+
 	return data;
 }

@@ -41,7 +41,7 @@ blargg_err_t Gme_File::load_m3u_( blargg_err_t err )
 			
 			static const char str [] = "Problem in m3u at line ";
 			out -= sizeof str - 1;
-			memcpy( out, str, sizeof str - 1 );
+			blarg_memcpy( out, str, sizeof str - 1 );
 			set_warning( out );
 		}
 	}
@@ -60,6 +60,8 @@ gme_err_t gme_load_m3u_data( Music_Emu* me, const void* data, long size )
 	return me->load_m3u( in );
 }
 
+
+
 static char* skip_white( char* in )
 {
 	while ( *in == ' ' )
@@ -67,7 +69,7 @@ static char* skip_white( char* in )
 	return in;
 }
 
-static inline unsigned from_dec( unsigned n ) { return n - '0'; }
+inline unsigned from_dec( unsigned n ) { return n - '0'; }
 
 static char* parse_filename( char* in, M3u_Playlist::entry_t& entry )
 {
@@ -174,7 +176,7 @@ static char* parse_int( char* in, int* out, int* result )
 }
 
 // Returns 16 or greater if not hex
-static inline int from_hex_char( int h )
+inline int from_hex_char( int h )
 {
 	h -= 0x30;
 	if ( (unsigned) h > 9 )
@@ -478,7 +480,7 @@ blargg_err_t M3u_Playlist::parse()
 blargg_err_t M3u_Playlist::load( Data_Reader& in )
 {
 	RETURN_ERR( data.resize( in.remain() + 1 ) );
-	RETURN_ERR( in.read( data.begin(), data.size() - 1 ) );
+	RETURN_ERR( in.read( data.begin(), (long)data.size() - 1 ) );
 	return parse();
 }
 
@@ -492,6 +494,6 @@ blargg_err_t M3u_Playlist::load( const char* path )
 blargg_err_t M3u_Playlist::load( void const* in, long size )
 {
 	RETURN_ERR( data.resize( size + 1 ) );
-	memcpy( data.begin(), in, size );
+	blarg_memcpy( data.begin(), in, size );
 	return parse();
 }

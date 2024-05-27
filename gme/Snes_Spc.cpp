@@ -31,7 +31,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 blargg_err_t Snes_Spc::init()
 {
-	memset( &m, 0, sizeof m );
+	blarg_memset( &m, 0, sizeof m );
 	dsp.init( RAM );
 	
 	m.tempo = tempo_unit;
@@ -143,8 +143,8 @@ void Snes_Spc::ram_loaded()
 	load_regs( &RAM [0xF0] );
 	
 	// Put STOP instruction around memory to catch PC underflow/overflow
-	memset( m.ram.padding1,      cpu_pad_fill, sizeof m.ram.padding1 );
-	memset( m.ram.ram + 0x10000, cpu_pad_fill, sizeof m.ram.padding1 );
+	blarg_memset( m.ram.padding1,      cpu_pad_fill, sizeof m.ram.padding1 );
+	blarg_memset( m.ram.ram + 0x10000, cpu_pad_fill, sizeof m.ram.padding1 );
 }
 
 // Registers were just loaded. Applies these new values.
@@ -184,7 +184,7 @@ void Snes_Spc::reset_common( int timer_counter_init )
 		REGS_IN [r_t0out + i] = timer_counter_init;
 	
 	// Run IPL ROM
-	memset( &m.cpu_regs, 0, sizeof m.cpu_regs );
+	blarg_memset( &m.cpu_regs, 0, sizeof m.cpu_regs );
 	m.cpu_regs.pc = rom_addr;
 	
 	REGS [r_test   ] = 0x0A;
@@ -203,7 +203,7 @@ void Snes_Spc::soft_reset()
 
 void Snes_Spc::reset()
 {
-	memset( RAM, 0xFF, 0x10000 );
+	blarg_memset( RAM, 0xFF, 0x10000 );
 	ram_loaded();
 	reset_common( 0x0F );
 	dsp.reset();
@@ -217,7 +217,7 @@ blargg_err_t Snes_Spc::load_spc( void const* data, long size )
 	spc_file_t const* const spc = (spc_file_t const*) data;
 	
 	// be sure compiler didn't insert any padding into fle_t
-	blaarg_static_assert( sizeof (spc_file_t) == spc_min_file_size + 0x80, "SPC File header layout incorrect!" );
+	BOOST_STATIC_ASSERT( sizeof (spc_file_t) == spc_min_file_size + 0x80, "SPC File header layout incorrect!" );
 	
 	// Check signature and file size
 	if ( size < signature_size || memcmp( spc, signature, 27 ) )
@@ -235,7 +235,7 @@ blargg_err_t Snes_Spc::load_spc( void const* data, long size )
 	m.cpu_regs.sp  = spc->sp;
 	
 	// RAM and registers
-	memcpy( RAM, spc->ram, 0x10000 );
+	blarg_memcpy( RAM, spc->ram, 0x10000 );
 	ram_loaded();
 	
 	// DSP registers
@@ -256,7 +256,7 @@ void Snes_Spc::clear_echo()
 		int end  = addr + 0x800 * (dsp.read( Spc_Dsp::r_edl ) & 0x0F);
 		if ( end > 0x10000 )
 			end = 0x10000;
-		memset( &RAM [addr], 0xFF, end - addr );
+		blarg_memset( &RAM [addr], 0xFF, end - addr );
 	}
 #endif
 }
@@ -306,7 +306,7 @@ void Snes_Spc::set_output( sample_t* out, int size )
 			assert( out <= out_end );
 		}
 		
-		dsp.set_output( out, out_end - out );
+		dsp.set_output( out, (int)(out_end - out) );
 	}
 	else
 	{

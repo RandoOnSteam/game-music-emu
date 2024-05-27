@@ -22,7 +22,6 @@
 	gme_vgm_type,\
 	gme_vgz_type
 */
-
 // Uncomment to enable platform-specific optimizations
 //#define BLARGG_NONPORTABLE 1
 
@@ -38,6 +37,13 @@
 // Use standard config.h if present
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
+#endif
+
+#if defined(_MSC_VER) && _MSC_VER <= 1200 /* 6 <= */
+#else
+	#if !defined(VGM_YM2612_GENS)
+		#define VGM_YM2612_GENS
+	#endif
 #endif
 
 #endif

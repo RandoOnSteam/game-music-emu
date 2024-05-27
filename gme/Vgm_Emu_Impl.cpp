@@ -46,7 +46,7 @@ enum {
 	ym2612_dac_port     = 0x2A
 };
 
-static inline int command_len( int command )
+inline int command_len( int command )
 {
 	switch ( command >> 4 )
 	{
@@ -95,7 +95,7 @@ inline int Ym_Emu<Emu>::run_until( int time )
 	}
 	return true;
 }
-
+	
 inline Vgm_Emu_Impl::fm_time_t Vgm_Emu_Impl::to_fm_time( vgm_time_t t ) const
 {
 	return (t * fm_time_factor + fm_time_offset) >> fm_time_bits;
@@ -294,14 +294,14 @@ int Vgm_Emu_Impl::play_frame( blip_time_t blip_time, int sample_count, sample_t*
 		ym2612[0].begin_frame( buf );
 		if ( ym2612[1].enabled() )
 			ym2612[1].begin_frame( buf );
-		memset( buf, 0, pairs * stereo * sizeof *buf );
+		blarg_memset( buf, 0, pairs * stereo * sizeof *buf );
 	}
 	else if ( ym2413[0].enabled() )
 	{
 		ym2413[0].begin_frame( buf );
 		if ( ym2413[1].enabled() )
 			ym2413[1].begin_frame( buf );
-		memset( buf, 0, pairs * stereo * sizeof *buf );
+		blarg_memset( buf, 0, pairs * stereo * sizeof *buf );
 	}
 	
 	run_commands( vgm_time );

@@ -25,7 +25,7 @@ void Nes_Fme7_Apu::reset()
 		oscs [i].last_amp = 0;
 	
 	fme7_apu_state_t* state = this;
-	memset( state, 0, sizeof *state );
+	blarg_memset( state, 0, sizeof *state );
 }
 
 unsigned char const Nes_Fme7_Apu::amp_table [16] =

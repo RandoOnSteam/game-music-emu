@@ -1412,7 +1412,7 @@ void OPN2_Reset(ym3438_t *chip, Bit32u rate, Bit32u clock)
 {
     Bit32u i, rateratio;
     rateratio = (Bit32u)chip->rateratio;
-    memset(chip, 0, sizeof(ym3438_t));
+    blarg_memset(chip, 0, sizeof(ym3438_t));
     for (i = 0; i < 24; i++)
     {
         chip->eg_out[i] = 0x3ff;

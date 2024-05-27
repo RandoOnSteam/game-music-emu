@@ -43,7 +43,7 @@ public:
 	
 	// Prevents channels and global volumes from being phase-negated
 	void disable_surround( bool disable = true );
-
+	
 	static gme_type_t static_type() { return gme_spc_type; }
 	
 public:

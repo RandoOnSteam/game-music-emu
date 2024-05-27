@@ -139,10 +139,12 @@
 /************************************************************************/
 
 #include <stdlib.h>
-#include <string.h>	/* for memset */
+#include <string.h>	/* for blarg_memset */
 #include <stddef.h>	/* for NULL */
 #include <math.h>
+#if 0
 #include <stdint.h>
+#endif
 
 namespace Ym2612_MameImpl
 {
@@ -2358,14 +2360,14 @@ static void reset_channels( FM_ST *ST , FM_CH *CH , int num )
 
 	for( c = 0 ; c < num ; c++ )
 	{
-		/* memset(&CH[c], 0x00, sizeof(FM_CH)); */
+		/* blarg_memset(&CH[c], 0x00, sizeof(FM_CH)); */
 		CH[c].mem_value = 0;
 		CH[c].op1_out[0] = 0;
 		CH[c].op1_out[1] = 0;
 		CH[c].fc = 0;
 		for(s = 0 ; s < 4 ; s++ )
 		{
-			/* memset(&CH[c].SLOT[s], 0x00, sizeof(FM_SLOT)); */
+			/* blarg_memset(&CH[c].SLOT[s], 0x00, sizeof(FM_SLOT)); */
 			CH[c].SLOT[s].Incr = -1;
 			CH[c].SLOT[s].key = 0;
 			CH[c].SLOT[s].phase = 0;
@@ -2810,7 +2812,7 @@ static void * ym2612_init(void *param, int clock, int rate,
 	F2612 = (YM2612 *)malloc(sizeof(YM2612));
 	if (F2612 == NULL)
 		return NULL;
-	memset(F2612, 0x00, sizeof(YM2612));
+	blarg_memset(F2612, 0x00, sizeof(YM2612));
 	/* allocate total level table (128kb space) */
 	init_tables();
 
@@ -2823,8 +2825,8 @@ static void * ym2612_init(void *param, int clock, int rate,
 	F2612->OPN.ST.rate = 53267;
 	F2612->OPN.ST.rateratio = (INT32)(UINT32)((((UINT64)144 * rate) << RSM_FRAC) / 7670454);
 	F2612->OPN.ST.framecnt = 1 << RSM_FRAC;
-	memset(&(F2612->OPN.ST.cur_sample), 0x00, sizeof(FMSAMPLE) * 2);
-	memset(&(F2612->OPN.ST.prev_sample), 0x00, sizeof(FMSAMPLE) * 2);
+	blarg_memset(&(F2612->OPN.ST.cur_sample), 0x00, sizeof(FMSAMPLE) * 2);
+	blarg_memset(&(F2612->OPN.ST.prev_sample), 0x00, sizeof(FMSAMPLE) * 2);
 #else
 	F2612->OPN.ST.rate = rate;
 #endif
@@ -2876,8 +2878,8 @@ static void ym2612_reset_chip(void *chip)
 #if RSM_ENABLE
 	/* Resampler's state */
 	F2612->OPN.ST.framecnt = 1 << RSM_FRAC;
-	memset(&(F2612->OPN.ST.cur_sample), 0x00, sizeof(FMSAMPLE) * 2);
-	memset(&(F2612->OPN.ST.prev_sample), 0x00, sizeof(FMSAMPLE) * 2);
+	blarg_memset(&(F2612->OPN.ST.cur_sample), 0x00, sizeof(FMSAMPLE) * 2);
+	blarg_memset(&(F2612->OPN.ST.prev_sample), 0x00, sizeof(FMSAMPLE) * 2);
 #endif
 
 	OPN->eg_timer = 0;
@@ -2896,7 +2898,7 @@ static void ym2612_reset_chip(void *chip)
 	OPN->ST.status = 0;
 	OPN->ST.mode = 0;
 
-	memset(F2612->REGS, 0x00, sizeof(UINT8) * 512);
+	blarg_memset(F2612->REGS, 0x00, sizeof(UINT8) * 512);
 
 	OPNWriteMode(OPN,0x22,0x00);
 

@@ -17,7 +17,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
-void SPC_Filter::clear() { memset( ch, 0, sizeof ch ); }
+void SPC_Filter::clear() { blarg_memset( ch, 0, sizeof ch ); }
 
 SPC_Filter::SPC_Filter()
 {

@@ -98,9 +98,9 @@ inline void Scc_Apu::reset()
 	last_time = 0;
 	
 	for ( int i = 0; i < osc_count; i++ )
-		memset( &oscs [i], 0, offsetof (osc_t,output) );
+		blarg_memset( &oscs [i], 0, offsetof (osc_t,output) );
 	
-	memset( regs, 0, sizeof regs );
+	blarg_memset( regs, 0, sizeof regs );
 }
 
 #endif

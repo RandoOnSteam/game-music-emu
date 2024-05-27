@@ -17,7 +17,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
-static int const max_frequency = 12000; // pure waves above this frequency are silenced
+int const max_frequency = 12000; // pure waves above this frequency are silenced
 
 static void gen_poly( blargg_ulong mask, int count, byte* out )
 {
@@ -39,11 +39,11 @@ static void gen_poly( blargg_ulong mask, int count, byte* out )
 }
 
 // poly5
-static int const poly5_len = (1 <<  5) - 1;
-static blargg_ulong const poly5_mask = (1UL << poly5_len) - 1;
-static blargg_ulong const poly5 = 0x167C6EA1;
+int const poly5_len = (1 <<  5) - 1;
+blargg_ulong const poly5_mask = (1UL << poly5_len) - 1;
+blargg_ulong const poly5 = 0x167C6EA1;
 
-static inline blargg_ulong run_poly5( blargg_ulong in, int shift )
+inline blargg_ulong run_poly5( blargg_ulong in, int shift )
 {
 	return (in << shift & poly5_mask) | (in >> (poly5_len - shift));
 }
@@ -87,7 +87,7 @@ void Sap_Apu::reset( Sap_Apu_Impl* new_impl )
 	control   = 0;
 	
 	for ( int i = 0; i < osc_count; i++ )
-		memset( &oscs [i], 0, offsetof (osc_t,output) );
+		blarg_memset( &oscs [i], 0, offsetof (osc_t,output) );
 }
 
 inline void Sap_Apu::calc_periods()

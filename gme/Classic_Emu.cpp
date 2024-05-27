@@ -25,9 +25,9 @@ Classic_Emu::Classic_Emu()
 	voice_types   = 0;
 	
 	// avoid inconsistency in our duplicated constants
-	blaarg_static_assert( (int) wave_type  == (int) Multi_Buffer::wave_type, "wave_type inconsistent across two classes using it" );
-	blaarg_static_assert( (int) noise_type == (int) Multi_Buffer::noise_type, "noise_type inconsistent across two classes using it"  );
-	blaarg_static_assert( (int) mixed_type == (int) Multi_Buffer::mixed_type, "mixed_type inconsistent across two classes using it"  );
+	BOOST_STATIC_ASSERT( (int) wave_type  == (int) Multi_Buffer::wave_type, "wave_type inconsistent across two classes using it" );
+	BOOST_STATIC_ASSERT( (int) noise_type == (int) Multi_Buffer::noise_type, "noise_type inconsistent across two classes using it"  );
+	BOOST_STATIC_ASSERT( (int) mixed_type == (int) Multi_Buffer::mixed_type, "mixed_type inconsistent across two classes using it"  );
 }
 
 Classic_Emu::~Classic_Emu()
@@ -149,10 +149,10 @@ blargg_err_t Rom_Data_::load_rom_data_( Data_Reader& in,
 	}
 	
 	file_size_ -= header_size;
-	memcpy( header_out, &rom [file_offset], header_size );
+	blarg_memcpy( header_out, &rom [file_offset], header_size );
 	
-	memset( rom.begin()         , fill, pad_size );
-	memset( rom.end() - pad_size, fill, pad_size );
+	blarg_memset( rom.begin()         , fill, pad_size );
+	blarg_memset( rom.end() - pad_size, fill, pad_size );
 	
 	return 0;
 }

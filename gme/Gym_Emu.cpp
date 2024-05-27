@@ -18,12 +18,12 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
-static double const min_tempo = 0.25;
-static double const oversample_factor = 5 / 3.0;
-static double const fm_gain = 3.0;
+double const min_tempo = 0.25;
+double const oversample_factor = 5 / 3.0;
+double const fm_gain = 3.0;
 
-static const long base_clock = 53700300;
-static const long clock_rate = base_clock / 15;
+const long base_clock = 53700300;
+const long clock_rate = base_clock / 15;
 
 Gym_Emu::Gym_Emu()
 {
@@ -210,7 +210,7 @@ void Gym_Emu::mute_voices_( int mask )
 
 blargg_err_t Gym_Emu::load_mem_( byte const* in, long size )
 {
-	blaarg_static_assert( offsetof (header_t,packed [4]) == header_size, "GYM Header layout incorrect!" );
+	BOOST_STATIC_ASSERT( offsetof (header_t,packed [4]) == header_size, "GYM Header layout incorrect!" );
 	int offset = 0;
 	RETURN_ERR( check_header( in, size, &offset ) );
 	set_voice_count( 8 );
@@ -222,7 +222,7 @@ blargg_err_t Gym_Emu::load_mem_( byte const* in, long size )
 	if ( offset )
 		header_ = *(header_t const*) in;
 	else
-		memset( &header_, 0, sizeof header_ );
+		blarg_memset( &header_, 0, sizeof header_ );
 	
 	return 0;
 }
@@ -367,7 +367,7 @@ int Gym_Emu::play_frame( blip_time_t blip_time, int sample_count, sample_t* buf 
 	
 	apu.end_frame( blip_time );
 	
-	memset( buf, 0, sample_count * sizeof *buf );
+	blarg_memset( buf, 0, sample_count * sizeof *buf );
 	fm.run( sample_count >> 1, buf );
 	
 	return sample_count;

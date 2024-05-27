@@ -4,7 +4,7 @@
 
 #include "blargg_endian.h"
 #include <string.h>
-#include <algorithm>
+//#include <algorithm>
 
 /* Copyright (C) 2006 Shay Green. This module is free software; you
 can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -19,11 +19,19 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
-static long const clock_rate = 3579545;
-static int const osc_count = Ay_Apu::osc_count + Scc_Apu::osc_count;
+long const clock_rate = 3579545;
+int const osc_count = Ay_Apu::osc_count + Scc_Apu::osc_count;
 
+#ifndef min
+#define min(x,y) ((x > y) ? y : x)
+#endif
+#ifndef max
+#define max(x,y) ((y > x) ? y : x)
+#endif
+#if 0
 using std::min;
 using std::max;
+#endif
 
 Kss_Emu::Kss_Emu()
 {
@@ -42,7 +50,7 @@ Kss_Emu::Kss_Emu()
 	};
 	set_voice_types( types );
 	
-	memset( unmapped_read, 0xFF, sizeof unmapped_read );
+	blarg_memset( unmapped_read, 0xFF, sizeof unmapped_read );
 }
 
 Kss_Emu::~Kss_Emu() { unload(); }
@@ -124,9 +132,9 @@ void Kss_Emu::update_gain()
 
 blargg_err_t Kss_Emu::load_( Data_Reader& in )
 {
-	memset( &header_, 0, sizeof header_ );
-	blaarg_static_assert( offsetof (header_t,device_flags) == header_size - 1, "KSS Header layout incorrect!" );
-	blaarg_static_assert( offsetof (ext_header_t,msx_audio_vol) == ext_header_size - 1, "KSS Extended Header layout incorrect!" );
+	blarg_memset( &header_, 0, sizeof header_ );
+	assert( offsetof (header_t,device_flags) == header_size - 1 );
+	assert( offsetof (ext_header_t,msx_audio_vol) == ext_header_size - 1 );
 	RETURN_ERR( rom.load( in, header_size, STATIC_CAST(header_t*,&header_), 0 ) );
 	
 	RETURN_ERR( check_kss_header( header_.tag ) );
@@ -147,7 +155,7 @@ blargg_err_t Kss_Emu::load_( Data_Reader& in )
 	else
 	{
 		ext_header_t& ext = header_;
-		memcpy( &ext, rom.begin(), min( (int) ext_header_size, (int) header_.extra_header ) );
+		blarg_memcpy( &ext, rom.begin(), min( (int) ext_header_size, (int) header_.extra_header ) );
 		if ( header_.extra_header > 0x10 )
 			set_warning( "Unknown data in header" );
 	}
@@ -199,8 +207,8 @@ blargg_err_t Kss_Emu::start_track_( int track )
 {
 	RETURN_ERR( Classic_Emu::start_track_( track ) );
 
-	memset( ram, 0xC9, 0x4000 );
-	memset( ram + 0x4000, 0, sizeof ram - 0x4000 );
+	blarg_memset( ram, 0xC9, 0x4000 );
+	blarg_memset( ram + 0x4000, 0, sizeof ram - 0x4000 );
 	
 	// copy driver code to lo RAM
 	static byte const bios [] = {
@@ -211,8 +219,8 @@ blargg_err_t Kss_Emu::start_track_( int track )
 		0xC3, 0x01, 0x00,   // $0093: WRTPSG vector
 		0xC3, 0x09, 0x00,   // $0096: RDPSG vector
 	};
-	memcpy( ram + 0x01, bios,    sizeof bios );
-	memcpy( ram + 0x93, vectors, sizeof vectors );
+	blarg_memcpy( ram + 0x01, bios,    sizeof bios );
+	blarg_memcpy( ram + 0x93, vectors, sizeof vectors );
 	
 	// copy non-banked data into RAM
 	unsigned load_addr = get_le16( header_.load_addr );
@@ -221,7 +229,7 @@ blargg_err_t Kss_Emu::start_track_( int track )
 	load_size = min( load_size, long (mem_size - load_addr) );
 	if ( load_size != orig_load_size )
 		set_warning( "Excessive data size" );
-	memcpy( ram + load_addr, rom.begin() + header_.extra_header, load_size );
+	blarg_memcpy( ram + load_addr, rom.begin() + header_.extra_header, load_size );
 	
 	rom.set_addr( -load_size - header_.extra_header );
 	

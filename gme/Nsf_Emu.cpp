@@ -29,22 +29,34 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
-static int const vrc6_flag  = 0x01;
-static int const vrc7_flag  = 0x02;
-static int const fds_flag   = 0x04;
-static int const mmc5_flag  = 0x08;
-static int const namco_flag = 0x10;
-static int const fme7_flag  = 0x20;
+int const vrc6_flag  = 0x01;
+int const vrc7_flag  = 0x02;
+int const fds_flag   = 0x04;
+int const mmc5_flag  = 0x08;
+int const namco_flag = 0x10;
+int const fme7_flag  = 0x20;
 
-static long const clock_divisor = 12;
+long const clock_divisor = 12;
 
+#ifndef min
+#define min(x,y) ((x > y) ? y : x)
+#endif
+#ifndef max
+#define max(x,y) ((y > x) ? y : x)
+#endif
+#if 0
 using std::min;
 using std::max;
+#endif
 
 Nsf_Emu::equalizer_t const Nsf_Emu::nes_eq     =
-	Music_Emu::make_equalizer( -1.0, 80 );
+	{ -1.0, 80,
+		0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+//Music_Emu::make_equalizer( -1.0, 80 );
 Nsf_Emu::equalizer_t const Nsf_Emu::famicom_eq =
-	Music_Emu::make_equalizer( -15.0, 80 );
+	{ -15.0, 80,
+		0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+//Music_Emu::make_equalizer( -15.0, 80 );
 
 int Nsf_Emu::pcm_read( void* emu, nes_addr_t addr )
 {
@@ -59,13 +71,13 @@ Nsf_Emu::Nsf_Emu()
 	fds   = 0;
 	mmc5  = 0;
 	vrc7  = 0;
-
+	
 	set_type( gme_nsf_type );
 	set_silence_lookahead( 6 );
 	apu.dmc_reader( pcm_read, this );
 	Music_Emu::set_equalizer( nes_eq );
 	set_gain( 1.4 );
-	memset( unmapped_code, Nes_Cpu::bad_opcode, sizeof unmapped_code );
+	blarg_memset( unmapped_code, Nes_Cpu::bad_opcode, sizeof unmapped_code );
 }
 
 Nsf_Emu::~Nsf_Emu() { unload(); }
@@ -125,22 +137,22 @@ static blargg_err_t check_nsf_header( void const* header )
 struct Nsf_File : Gme_Info_
 {
 	Nsf_Emu::header_t h;
-
+	
 	Nsf_File() { set_type( gme_nsf_type ); }
-
+	
 	blargg_err_t load_( Data_Reader& in )
 	{
 		blargg_err_t err = in.read( &h, Nsf_Emu::header_size );
 		if ( err )
 			return (err == in.eof_error ? gme_wrong_file_type : err);
-
+		
 		if ( h.chip_flags & ~(namco_flag | vrc6_flag | fme7_flag | fds_flag | mmc5_flag | vrc7_flag) )
 			set_warning( "Uses unsupported audio expansion hardware" );
-
+		
 		set_track_count( h.track_count );
 		return check_nsf_header( &h );
 	}
-
+	
 	blargg_err_t track_info_( track_info_t* out, int ) const
 	{
 		copy_nsf_fields( h, out );
@@ -163,7 +175,7 @@ void Nsf_Emu::set_tempo_( double t )
 	unsigned standard_rate = 0x411A;
 	clock_rate_ = 1789772.72727;
 	play_period = 262 * 341L * 4 - 2; // two fewer PPU clocks every four frames
-
+	
 	if ( pal_only )
 	{
 		play_period   = 33247 * clock_divisor;
@@ -171,10 +183,10 @@ void Nsf_Emu::set_tempo_( double t )
 		standard_rate = 0x4E20;
 		playback_rate = get_le16( header_.pal_speed );
 	}
-
+	
 	if ( !playback_rate )
 		playback_rate = standard_rate;
-
+	
 	if ( playback_rate != standard_rate || t != 1.0 )
 		play_period = long (playback_rate * clock_rate_ / (1000000.0 / clock_divisor * t));
 
@@ -330,20 +342,20 @@ blargg_err_t Nsf_Emu::init_sound()
 
 blargg_err_t Nsf_Emu::load_( Data_Reader& in )
 {
-	blaarg_static_assert( offsetof (header_t,unused [4]) == header_size, "NSF Header layout incorrect!" );
+	BOOST_STATIC_ASSERT( offsetof (header_t,unused [4]) == header_size, "NSF Header layout incorrect!" );
 	RETURN_ERR( rom.load( in, header_size, &header_, 0 ) );
-
+	
 	set_track_count( header_.track_count );
 	RETURN_ERR( check_nsf_header( &header_ ) );
-
+	
 	if ( header_.vers != 1 )
 		set_warning( "Unknown file version" );
-
+	
 	// sound and memory
 	blargg_err_t err = init_sound();
 	if ( err )
 		return err;
-
+	
 	// set up data
 	nes_addr_t load_addr = get_le16( header_.load_addr );
 	init_addr = get_le16( header_.init_addr );
@@ -358,10 +370,10 @@ blargg_err_t Nsf_Emu::load_( Data_Reader& in )
 			w = "Corrupt file (invalid load/init/play address)";
 		return w;
 	}
-
+	
 	rom.set_addr( load_addr % bank_size );
 	int total_banks = rom.size() / bank_size;
-
+	
 	// bank switching
 	int first_bank = (load_addr - rom_begin) / bank_size;
 	for ( int i = 0; i < bank_count; i++ )
@@ -370,7 +382,7 @@ blargg_err_t Nsf_Emu::load_( Data_Reader& in )
 		if ( bank >= (unsigned) total_banks )
 			bank = 0;
 		initial_banks [i] = bank;
-
+		
 		if ( header_.banks [i] )
 		{
 			// bank-switched
@@ -378,22 +390,22 @@ blargg_err_t Nsf_Emu::load_( Data_Reader& in )
 			break;
 		}
 	}
-
+	
 	pal_only = (header_.speed_flags & 3) == 1;
-
+	
 	#if !NSF_EMU_EXTRA_FLAGS
 		header_.speed_flags = 0;
 	#endif
-
+	
 	set_tempo( tempo() );
-
+	
 	return setup_buffer( (long) (clock_rate_ + 0.5) );
 }
 
 void Nsf_Emu::update_eq( blip_eq_t const& eq )
 {
 	apu.treble_eq( eq );
-
+	
 	#if !NSF_EMU_APU_ONLY
 	{
 		if ( namco ) namco->treble_eq( eq );
@@ -476,13 +488,13 @@ void Nsf_Emu::cpu_write_misc( nes_addr_t addr, int data )
 			case Nes_Namco_Apu::data_reg_addr:
 				namco->write_data( time(), data );
 				return;
-
+			
 			case Nes_Namco_Apu::addr_reg_addr:
 				namco->write_addr( data );
 				return;
 			}
 		}
-
+		
 		if ( addr >= Nes_Fme7_Apu::latch_addr && fme7 )
 		{
 			switch ( addr & Nes_Fme7_Apu::addr_mask )
@@ -490,13 +502,13 @@ void Nsf_Emu::cpu_write_misc( nes_addr_t addr, int data )
 			case Nes_Fme7_Apu::latch_addr:
 				fme7->write_latch( data );
 				return;
-
+			
 			case Nes_Fme7_Apu::data_addr:
 				fme7->write_data( time(), data );
 				return;
 			}
 		}
-
+		
 		if ( vrc6 )
 		{
 			unsigned reg = addr & (Nes_Vrc6_Apu::addr_step - 1);
@@ -547,20 +559,20 @@ void Nsf_Emu::cpu_write_misc( nes_addr_t addr, int data )
 		}
 	}
 	#endif
-
+	
 	// unmapped write
-
+	
 	#ifndef NDEBUG
 	{
 		// some games write to $8000 and $8001 repeatedly
 		if ( addr == 0x8000 || addr == 0x8001 ) return;
-
+		
 		// probably namco sound mistakenly turned on in mck
 		if ( addr == 0x4800 || addr == 0xF800 ) return;
-
+		
 		// memory mapper?
 		if ( addr == 0xFFF8 ) return;
-
+		
 		debug_printf( "write_unmapped( 0x%04X, 0x%02X )\n", (unsigned) addr, (unsigned) data );
 	}
 	#endif
@@ -569,15 +581,15 @@ void Nsf_Emu::cpu_write_misc( nes_addr_t addr, int data )
 blargg_err_t Nsf_Emu::start_track_( int track )
 {
 	RETURN_ERR( Classic_Emu::start_track_( track ) );
-
-	memset( low_mem, 0, sizeof low_mem );
-	memset( sram,    0, sizeof sram );
-
+	
+	blarg_memset( low_mem, 0, sizeof low_mem );
+	blarg_memset( sram,    0, sizeof sram );
+	
 	cpu::reset( unmapped_code ); // also maps low_mem
 	cpu::map_code( sram_addr, sizeof sram, sram );
 	for ( int i = 0; i < bank_count; ++i )
 		cpu_write( bank_select_addr + i, initial_banks [i] );
-
+	
 	apu.reset( pal_only, (header_.speed_flags & 0x20) ? 0x3F : 0 );
 	apu.write_register( 0, 0x4015, 0x0F );
 	apu.write_register( 0, 0x4017, (header_.speed_flags & 0x10) ? 0x80 : 0 );
@@ -586,7 +598,7 @@ blargg_err_t Nsf_Emu::start_track_( int track )
 	{
 		mmc5_mul [0] = 0;
 		mmc5_mul [1] = 0;
-		memset( mmc5->exram, 0, mmc5->exram_size );
+		blarg_memset( mmc5->exram, 0, mmc5->exram_size );
 	}
 
 	{
@@ -598,11 +610,11 @@ blargg_err_t Nsf_Emu::start_track_( int track )
 		if ( vrc7  ) vrc7 ->reset();
 	}
 	#endif
-
+	
 	play_ready = 4;
 	play_extra = 0;
 	next_play = play_period / clock_divisor;
-
+	
 	saved_state.pc = badop_addr;
 	low_mem [0x1FF] = (badop_addr - 1) >> 8;
 	low_mem [0x1FE] = (badop_addr - 1) & 0xFF;
@@ -610,7 +622,7 @@ blargg_err_t Nsf_Emu::start_track_( int track )
 	r.pc = init_addr;
 	r.a  = track;
 	r.x  = pal_only;
-
+	
 	return 0;
 }
 
@@ -642,7 +654,7 @@ blargg_err_t Nsf_Emu::run_clocks( blip_time_t& duration, int )
 				}
 			}
 		}
-
+		
 		if ( time() >= next_play )
 		{
 			nes_time_t period = (play_period + play_extra) / clock_divisor;
@@ -653,7 +665,7 @@ blargg_err_t Nsf_Emu::run_clocks( blip_time_t& duration, int )
 				check( saved_state.pc == badop_addr );
 				if ( r.pc != badop_addr )
 					saved_state = cpu::r;
-
+				
 				r.pc = play_addr;
 				low_mem [0x100 + r.sp--] = (badop_addr - 1) >> 8;
 				low_mem [0x100 + r.sp--] = (badop_addr - 1) & 0xFF;
@@ -661,21 +673,21 @@ blargg_err_t Nsf_Emu::run_clocks( blip_time_t& duration, int )
 			}
 		}
 	}
-
+	
 	if ( cpu::error_count() )
 	{
 		cpu::clear_error_count();
 		set_warning( "Emulation error (illegal instruction)" );
 	}
-
+	
 	duration = time();
 	next_play -= duration;
 	check( next_play >= 0 );
 	if ( next_play < 0 )
 		next_play = 0;
-
+	
 	apu.end_frame( duration );
-
+	
 	#if !NSF_EMU_APU_ONLY
 	{
 		if ( namco ) namco->end_frame( duration );
@@ -686,6 +698,6 @@ blargg_err_t Nsf_Emu::run_clocks( blip_time_t& duration, int )
 		if ( vrc7  ) vrc7 ->end_frame( duration );
 	}
 	#endif
-
+	
 	return 0;
 }

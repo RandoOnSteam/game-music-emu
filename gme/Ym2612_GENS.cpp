@@ -5,6 +5,7 @@
 #ifdef VGM_YM2612_GENS
 
 #include "Ym2612_GENS.h"
+#include "blargg_common.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -38,7 +39,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 	#include BLARGG_ENABLE_OPTIMIZER
 #endif
 
-static const int output_bits = 14;
+const int output_bits = 14;
 
 struct slot_t
 {
@@ -181,7 +182,7 @@ struct state_t
 #define S2             1
 #define S3             3
 
-static inline void set_seg( slot_t& s, int seg )
+inline void set_seg( slot_t& s, int seg )
 {
 	s.env_xor = 0;
 	s.env_max = INT_MAX;
@@ -255,7 +256,7 @@ static const unsigned char LFO_FMS_TAB [8] =
 	LFO_FMS_BASE * 12, LFO_FMS_BASE * 24
 };
 
-static inline void YM2612_Special_Update() { }
+inline void YM2612_Special_Update() { }
 
 struct Ym2612_GENS_Impl
 {
@@ -835,7 +836,7 @@ const char* Ym2612_GENS_Emu::set_rate( double sample_rate, double clock_rate )
 			return "Out of memory";
 		impl->mute_mask = 0;
 	}
-	memset( &impl->YM2612, 0, sizeof impl->YM2612 );
+	blarg_memset( &impl->YM2612, 0, sizeof impl->YM2612 );
 
 	impl->set_rate( sample_rate, clock_rate );
 
@@ -1026,7 +1027,7 @@ static void update_envelope_( slot_t* sl )
 	}
 }
 
-static inline void update_envelope( slot_t& sl )
+inline void update_envelope( slot_t& sl )
 {
 	int ecmp = sl.Ecmp;
 	if ( (sl.Ecnt += sl.Einc) >= ecmp )

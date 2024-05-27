@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include <algorithm>
 
+#if defined(_MSC_VER)
+	#pragma warning(disable:4996) /* "unsafe" CRT functions */
+#endif
+
 /* Copyright (C) 2005-2006 Shay Green. This module is free software; you
 can redistribute it and/or modify it under the terms of the GNU Lesser
 General Public License as published by the Free Software Foundation; either
@@ -28,8 +32,16 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 static const unsigned char gz_magic[2] = {0x1f, 0x8b}; /* gzip magic header */
 #endif /* HAVE_ZLIB_H */
 
+#ifndef min
+#define min(x,y) ((x > y) ? y : x)
+#endif
+#ifndef max
+#define max(x,y) ((y > x) ? y : x)
+#endif
+#if 0
 using std::min;
 using std::max;
+#endif
 
 const char Data_Reader::eof_error [] = "Unexpected end of file";
 
@@ -109,19 +121,19 @@ Remaining_Reader::Remaining_Reader( void const* h, long size, Data_Reader* r )
 	in = r;
 }
 
-long Remaining_Reader::remain() const { return header_end - header + in->remain(); }
+long Remaining_Reader::remain() const { return (long)(header_end - header + in->remain()); }
 
 long Remaining_Reader::read_first( void* out, long count )
 {
 	count = max( 0l, count );
-	long first = header_end - header;
+	long first = (long)(header_end - header);
 	if ( first )
 	{
 		if ( first > count || first < 0 )
 			first = count;
 		void const* old = header;
 		header += first;
-		memcpy( out, old, (size_t) first );
+		blarg_memcpy( out, old, (size_t) first );
 	}
 	return first;
 }
@@ -184,7 +196,7 @@ long Mem_File_Reader::read_avail( void* p, long s )
 	long r = remain();
 	if ( s > r || s < 0 )
 		s = r;
-	memcpy( p, m_begin + m_pos, static_cast<size_t>(s) );
+	blarg_memcpy( p, m_begin + m_pos, static_cast<size_t>(s) );
 	m_pos += s;
 	return s;
 }
@@ -383,7 +395,7 @@ long Std_File_Reader::read_avail( void* p, long s )
 	return 0l;
 #else
 	const size_t readLength = static_cast<size_t>( max( 0l, s ) );
-	const auto result = fread( p, 1, readLength, reinterpret_cast<FILE*>(file_) );
+	const size_t result = fread( p, 1, readLength, reinterpret_cast<FILE*>(file_) );
 	return static_cast<long>( result );
 #endif /* HAVE_ZLIB_H */
 }
@@ -394,7 +406,7 @@ blargg_err_t Std_File_Reader::read( void* p, long s )
 #ifdef HAVE_ZLIB_H
 	if ( file_ )
 	{
-		const auto &gzfile = reinterpret_cast<gzFile>( file_ );
+		const gzFile &gzfile = reinterpret_cast<gzFile>( file_ );
 		if ( s == gzread( gzfile, p, static_cast<unsigned>( s ) ) )
 			return nullptr;
 		if ( gzeof( gzfile ) )
@@ -402,8 +414,8 @@ blargg_err_t Std_File_Reader::read( void* p, long s )
 		return "Couldn't read from GZ file";
 	}
 #endif
-	const auto &file = reinterpret_cast<FILE*>( file_ );
-	if ( s == static_cast<long>( fread( p, 1, static_cast<size_t>(s), file ) ) )
+	FILE* file = reinterpret_cast<FILE*>( file_ );
+	if ( s == static_cast<long>( fread( p, 1, static_cast<size_t>(s), (FILE*)file ) ) )
 		return 0;
 	if ( feof( file ) )
 		return eof_error;

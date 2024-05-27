@@ -21,8 +21,8 @@ static int const fract_range = 65536;
 
 void Nes_Fds_Apu::reset()
 {
-	memset( regs_, 0, sizeof regs_ );
-	memset( mod_wave, 0, sizeof mod_wave );
+	blarg_memset( regs_, 0, sizeof regs_ );
+	blarg_memset( mod_wave, 0, sizeof mod_wave );
 	
 	last_time     = 0;
 	env_delay     = 0;

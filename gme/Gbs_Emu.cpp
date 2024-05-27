@@ -19,9 +19,14 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 #include "blargg_source.h"
 
 Gbs_Emu::equalizer_t const Gbs_Emu::handheld_eq   =
-	Music_Emu::make_equalizer( -47.0, 2000 );
+	{ -47.0, 2000,
+		0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+//	Music_Emu::make_equalizer( -47.0, 2000 );
 Gbs_Emu::equalizer_t const Gbs_Emu::headphones_eq =
-	Music_Emu::make_equalizer( 0.0, 300 );
+	{ 0.0, 300,
+		0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+//	Music_Emu::make_equalizer( 0.0, 300 );
 
 Gbs_Emu::Gbs_Emu()
 {
@@ -107,7 +112,7 @@ extern gme_type_t const gme_gbs_type = &gme_gbs_type_;
 
 blargg_err_t Gbs_Emu::load_( Data_Reader& in )
 {
-	blaarg_static_assert( offsetof (header_t,copyright [32]) == header_size, "GBS Header layout incorrect!" );
+	assert( offsetof (header_t,copyright [32]) == header_size, "GBS Header layout incorrect!" );
 	RETURN_ERR( rom.load( in, header_size, &header_, 0 ) );
 	
 	set_track_count( header_.track_count );
@@ -207,9 +212,9 @@ blargg_err_t Gbs_Emu::start_track_( int track )
 {
 	RETURN_ERR( Classic_Emu::start_track_( track ) );
 	
-	memset( ram, 0, 0x4000 );
-	memset( ram + 0x4000, 0xFF, 0x1F00 );
-	memset( ram + 0x5F00, 0, sizeof ram - 0x5F00 );
+	blarg_memset( ram, 0, 0x4000 );
+	blarg_memset( ram + 0x4000, 0xFF, 0x1F00 );
+	blarg_memset( ram + 0x5F00, 0, sizeof ram - 0x5F00 );
 	ram [hi_page] = 0; // joypad reads back as 0
 	
 	apu.reset();

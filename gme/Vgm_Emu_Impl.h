@@ -24,7 +24,7 @@ public:
 	int run_until( int time );
 };
 
-class Vgm_Emu_Impl : public Classic_Emu, private Dual_Resampler {
+class Vgm_Emu_Impl : public Classic_Emu, protected Dual_Resampler {
 public:
 	typedef Classic_Emu::sample_t sample_t;
 protected:

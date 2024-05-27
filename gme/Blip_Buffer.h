@@ -1,7 +1,6 @@
 // Band-limited sound synthesis buffer
 
 // Blip_Buffer 0.4.1
-
 #ifndef BLIP_BUFFER_H
 #define BLIP_BUFFER_H
 
@@ -102,7 +101,7 @@ public:
 	blargg_err_t sample_rate( long r, int msec ) { return set_sample_rate( r, msec ); }
 private:
 	// noncopyable
-	Blip_Buffer( const Blip_Buffer& );
+	/*Blip_Buffer( const Blip_Buffer& );*/ /* req for old stl */
 	Blip_Buffer& operator = ( const Blip_Buffer& );
 public:
 	typedef blip_time_t buf_t_;
@@ -234,9 +233,11 @@ public:
 #endif
 
 	// disable broken defaulted constructors, Blip_Synth_ isn't safe to move/copy
-	Blip_Synth           (const Blip_Synth  &) = delete;
-	Blip_Synth           (      Blip_Synth &&) = delete;
-	Blip_Synth& operator=(const Blip_Synth  &) = delete;
+#if 0 // Not supported on older compilers
+	Blip_Synth<quality, range>           (const Blip_Synth<quality, range>  &) = delete;
+	Blip_Synth<quality, range>           (      Blip_Synth<quality, range> &&) = delete;
+	Blip_Synth<quality, range>& operator=(const Blip_Synth<quality, range> &)  = delete;
+#endif
 };
 
 // Low-pass equalization parameters
@@ -480,6 +481,7 @@ inline long Blip_Buffer::samples_avail() const
     long samples = (long) (offset_ >> BLIP_BUFFER_ACCURACY);
     return samples <= (long) buffer_size_ ? samples : 0;
 }
+
 inline long Blip_Buffer::sample_rate() const    { return sample_rate_; }
 inline int  Blip_Buffer::output_latency() const { return blip_widest_impulse_ / 2; }
 inline long Blip_Buffer::clock_rate() const     { return clock_rate_; }

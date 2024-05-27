@@ -19,16 +19,26 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
-static int const silence_max = 6; // seconds
-static int const silence_threshold = 0x10;
-static long const fade_block_size = 512;
-static int const fade_shift = 8; // fade ends with gain at 1.0 / (1 << fade_shift)
+int const silence_max = 6; // seconds
+int const silence_threshold = 0x10;
+long const fade_block_size = 512;
+int const fade_shift = 8; // fade ends with gain at 1.0 / (1 << fade_shift)
 
+#ifndef min
+#define min(x,y) ((x > y) ? y : x)
+#endif
+#ifndef max
+#define max(x,y) ((y > x) ? y : x)
+#endif
+#if 0
 using std::min;
 using std::max;
+#endif
 
 Music_Emu::equalizer_t const Music_Emu::tv_eq =
-	Music_Emu::make_equalizer( -8.0, 180 );
+	{ -8.0, 180,
+		0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+/*Music_Emu::make_equalizer( -8.0, 180 );*/
 
 void Music_Emu::clear_track_vars()
 {
@@ -60,14 +70,14 @@ Music_Emu::Music_Emu()
 	mute_mask_   = 0;
 	tempo_       = 1.0;
 	gain_        = 1.0;
-	
+
 	// defaults
 	max_initial_silence = 2;
 	silence_lookahead   = 3;
 	ignore_silence_     = false;
 	equalizer_.treble   = -1.0;
 	equalizer_.bass     = 60;
-	
+
 	emu_autoload_playback_limit_ = true;
 
 	static const char* const names [] = {
@@ -162,15 +172,15 @@ void Music_Emu::post_load_()
 blargg_err_t Music_Emu::start_track( int track )
 {
 	clear_track_vars();
-	
+
 	int remapped = track;
 	RETURN_ERR( remap_track_( &remapped ) );
 	current_track_ = track;
 	RETURN_ERR( start_track_( remapped ) );
-	
+
 	emu_track_ended_ = false;
 	track_ended_     = false;
-	
+
 	if ( !ignore_silence_ )
 	{
 		// play until non-silence or end of track
@@ -180,7 +190,7 @@ blargg_err_t Music_Emu::start_track( int track )
 			if ( buf_remain | (int) emu_track_ended_ )
 				break;
 		}
-		
+
 		emu_time      = buf_remain;
 		out_time      = 0;
 		silence_time  = 0;
@@ -245,27 +255,27 @@ blargg_err_t Music_Emu::skip( long count )
 {
 	require( current_track() >= 0 ); // start_track() must have been called already
 	out_time += count;
-	
+
 	// remove from silence and buf first
 	{
 		long n = min( count, silence_count );
 		silence_count -= n;
 		count -= n;
-		
+
 		n = min( count, buf_remain );
 		buf_remain -= n;
 		count -= n;
 	}
-		
+
 	if ( count && !emu_track_ended_ )
 	{
 		emu_time += count;
 		end_track_if_error( skip_( count ) );
 	}
-	
+
 	if ( !(silence_count | buf_remain) ) // caught up to emulator, so update track ended
 		track_ended_ |= emu_track_ended_;
-	
+
 	return 0;
 }
 
@@ -277,16 +287,16 @@ blargg_err_t Music_Emu::skip_( long count )
 	{
 		int saved_mute = mute_mask_;
 		mute_voices( ~0 );
-		
+
 		while ( count > threshold / 2 && !emu_track_ended_ )
 		{
 			RETURN_ERR( play_( buf_size, buf.begin() ) );
 			count -= buf_size;
 		}
-		
+
 		mute_voices( saved_mute );
 	}
-	
+
 	while ( count && !emu_track_ended_ )
 	{
 		long n = buf_size;
@@ -309,8 +319,18 @@ void Music_Emu::set_fade( long start_msec, long length_msec )
 // unit / pow( 2.0, (double) x / step )
 static int int_log( blargg_long x, int step, int unit )
 {
-	int shift = x / step;
-	int fraction = (x - shift * step) * unit / step;
+	int shift;
+	int fraction;
+	if(step)
+	{
+		shift = x / step;
+		fraction = (x - shift * step) * unit / step;
+	}
+	else
+	{
+		shift = x;
+		fraction = (x - shift * step) * unit;
+	}
 	return ((unit - fraction) + (fraction >> 1)) >> shift;
 }
 
@@ -324,7 +344,7 @@ void Music_Emu::handle_fade( long out_count, sample_t* out )
 				fade_step, unit );
 		if ( gain < (unit >> fade_shift) )
 			track_ended_ = emu_track_ended_ = true;
-		
+
 		sample_t* io = &out [i];
 		for ( int count = min( fade_block_size, out_count - i ); count; --count )
 		{
@@ -343,7 +363,7 @@ void Music_Emu::emu_play( long count, sample_t* out )
 	if ( current_track_ >= 0 && !emu_track_ended_ )
 		end_track_if_error( play_( count, out ) );
 	else
-		memset( out, 0, count * sizeof *out );
+		blarg_memset( out, 0, count * sizeof *out );
 }
 
 // number of consecutive silent samples at end
@@ -354,7 +374,7 @@ static long count_silence( Music_Emu::sample_t* begin, long size )
 	Music_Emu::sample_t* p = begin + size;
 	while ( (unsigned) (*--p + silence_threshold / 2) <= (unsigned) silence_threshold ) { }
 	*begin = first;
-	return size - (p - begin);
+	return (long)(size - (p - begin));
 }
 
 // fill internal buffer and check it for silence
@@ -379,31 +399,31 @@ blargg_err_t Music_Emu::play( long out_count, sample_t* out )
 {
 	if ( track_ended_ )
 	{
-		memset( out, 0, out_count * sizeof *out );
+		blarg_memset( out, 0, out_count * sizeof *out );
 	}
 	else
 	{
 		require( current_track() >= 0 );
 		require( out_count % out_channels() == 0 );
-		
+
 		assert( emu_time >= out_time );
-		
+
 		// prints nifty graph of how far ahead we are when searching for silence
 		//debug_printf( "%*s \n", int ((emu_time - out_time) * 7 / sample_rate()), "*" );
-		
+
 		long pos = 0;
 		if ( silence_count )
 		{
 			// during a run of silence, run emulator at >=2x speed so it gets ahead
 			long ahead_time = silence_lookahead * (out_time + out_count - silence_time) + silence_time;
-			while ( emu_time < ahead_time && !(buf_remain | static_cast<long>(emu_track_ended_)) )
+			while ( emu_time < ahead_time && !(buf_remain | (long)emu_track_ended_) )
 				fill_buf();
-			
+
 			// fill with silence
 			pos = min( silence_count, out_count );
-			memset( out, 0, pos * sizeof *out );
+			blarg_memset( out, 0, pos * sizeof *out );
 			silence_count -= pos;
-			
+
 			if ( emu_time - silence_time > silence_max * out_channels() * sample_rate() )
 			{
 				track_ended_  = emu_track_ended_ = true;
@@ -411,35 +431,35 @@ blargg_err_t Music_Emu::play( long out_count, sample_t* out )
 				buf_remain    = 0;
 			}
 		}
-		
+
 		if ( buf_remain )
 		{
 			// empty silence buf
 			long n = min( buf_remain, out_count - pos );
-			memcpy( &out [pos], buf.begin() + (buf_size - buf_remain), n * sizeof *out );
+			blarg_memcpy( &out [pos], buf.begin() + (buf_size - buf_remain), n * sizeof *out );
 			buf_remain -= n;
 			pos += n;
 		}
-		
+
 		// generate remaining samples normally
 		long remain = out_count - pos;
 		if ( remain )
 		{
 			emu_play( remain, out + pos );
 			track_ended_ |= emu_track_ended_;
-			
+
 			if ( !ignore_silence_ || out_time > fade_start )
 			{
 				// check end for a new run of silence
 				long silence = count_silence( out + pos, remain );
 				if ( silence < remain )
 					silence_time = emu_time - silence;
-				
+
 				if ( emu_time - silence_time >= buf_size )
 					fill_buf(); // cause silence detection on next play()
 			}
 		}
-		
+
 		if ( fade_start >= 0 && out_time > fade_start )
 			handle_fade( out_count, out );
 	}
@@ -458,4 +478,3 @@ void         Gme_Info_::mute_voices_( int )                 { check( false ); }
 void         Gme_Info_::set_tempo_( double )                { }
 blargg_err_t Gme_Info_::start_track_( int )                 { return "Use full emulator for playback"; }
 blargg_err_t Gme_Info_::play_( long, sample_t* )            { return "Use full emulator for playback"; }
-

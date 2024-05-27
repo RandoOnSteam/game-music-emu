@@ -1000,7 +1000,7 @@ OPLL_new (e_uint32 clk, e_uint32 rate)
 
   maketables (clk, rate);
 
-  opll = (OPLL *) calloc (sizeof (OPLL), 1);
+  opll = (OPLL *) malloc (sizeof (OPLL));
   if (opll == NULL)
     return NULL;
 

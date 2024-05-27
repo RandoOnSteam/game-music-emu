@@ -37,16 +37,14 @@ int const ram_addr = 0x2000;
 #endif
 
 // status flags
-enum {
-    st_n = 0x80,
-    st_v = 0x40,
-    st_t = 0x20,
-    st_b = 0x10,
-    st_d = 0x08,
-    st_i = 0x04,
-    st_z = 0x02,
-    st_c = 0x01
-};
+int const st_n = 0x80;
+int const st_v = 0x40;
+/*int const st_t = 0x20;*/
+int const st_b = 0x10;
+int const st_d = 0x08;
+int const st_i = 0x04;
+int const st_z = 0x02;
+int const st_c = 0x01;
 
 void Hes_Cpu::reset()
 {
@@ -877,7 +875,7 @@ possibly_out_of_time:
 	case 0xD6: // DEC zp,x
 		data = uint8_t (data + x);/*FALLTHRU*/
 	case 0xC6: // DEC zp
-		nz = (uint_fast16_t)-1;
+		nz = (uint_fast16_t) -1;
 	add_nz_zp:
 		nz += READ_LOW( data );
 	write_nz_zp:

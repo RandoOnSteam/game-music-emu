@@ -2,6 +2,11 @@
 
 #include "Multi_Buffer.h"
 
+
+#if defined(_MSC_VER)
+	#pragma warning(disable:4244) /* loss of data int8<->int16 conversion */
+#endif
+
 /* Copyright (C) 2003-2006 Shay Green. This module is free software; you
 can redistribute it and/or modify it under the terms of the GNU Lesser
 General Public License as published by the Free Software Foundation; either
@@ -107,7 +112,7 @@ long Stereo_Buffer::read_samples( blip_sample_t* out, long count )
 {
 	require( !(count & 1) ); // count must be even
 	count = (unsigned) count / 2;
-	
+
 	long avail = bufs [0].samples_avail();
 	if ( count > avail )
 		count = avail;
@@ -136,7 +141,7 @@ long Stereo_Buffer::read_samples( blip_sample_t* out, long count )
 			bufs [1].remove_samples( count );
 			bufs [2].remove_samples( count );
 		}
-		
+
 		// to do: this might miss opportunities for optimization
 		if ( !bufs [0].samples_avail() )
 		{
@@ -144,7 +149,7 @@ long Stereo_Buffer::read_samples( blip_sample_t* out, long count )
 			stereo_added = 0;
 		}
 	}
-	
+
 	return count * 2;
 }
 
@@ -155,7 +160,7 @@ void Stereo_Buffer::mix_stereo( blip_sample_t* out_, blargg_long count )
 	BLIP_READER_BEGIN( left, bufs [1] );
 	BLIP_READER_BEGIN( right, bufs [2] );
 	BLIP_READER_BEGIN( center, bufs [0] );
-	
+
 	for ( ; count; --count )
 	{
 		int c = BLIP_READER_READ( center );
@@ -163,19 +168,19 @@ void Stereo_Buffer::mix_stereo( blip_sample_t* out_, blargg_long count )
 		blargg_long r = c + BLIP_READER_READ( right );
 		if ( (int16_t) l != l )
 			l = 0x7FFF - (l >> 24);
-		
+
 		BLIP_READER_NEXT( center, bass );
 		if ( (int16_t) r != r )
 			r = 0x7FFF - (r >> 24);
-		
+
 		BLIP_READER_NEXT( left, bass );
 		BLIP_READER_NEXT( right, bass );
-		
+
 		out [0] = l;
 		out [1] = r;
 		out += 2;
 	}
-	
+
 	BLIP_READER_END( center, bufs [0] );
 	BLIP_READER_END( right, bufs [2] );
 	BLIP_READER_END( left, bufs [1] );
@@ -187,25 +192,25 @@ void Stereo_Buffer::mix_stereo_no_center( blip_sample_t* out_, blargg_long count
 	int const bass = BLIP_READER_BASS( bufs [1] );
 	BLIP_READER_BEGIN( left, bufs [1] );
 	BLIP_READER_BEGIN( right, bufs [2] );
-	
+
 	for ( ; count; --count )
 	{
 		blargg_long l = BLIP_READER_READ( left );
 		if ( (int16_t) l != l )
 			l = 0x7FFF - (l >> 24);
-		
+
 		blargg_long r = BLIP_READER_READ( right );
 		if ( (int16_t) r != r )
 			r = 0x7FFF - (r >> 24);
-		
+
 		BLIP_READER_NEXT( left, bass );
 		BLIP_READER_NEXT( right, bass );
-		
+
 		out [0] = l;
 		out [1] = r;
 		out += 2;
 	}
-	
+
 	BLIP_READER_END( right, bufs [2] );
 	BLIP_READER_END( left, bufs [1] );
 }
@@ -215,18 +220,18 @@ void Stereo_Buffer::mix_mono( blip_sample_t* out_, blargg_long count )
 	blip_sample_t* BLIP_RESTRICT out = out_;
 	int const bass = BLIP_READER_BASS( bufs [0] );
 	BLIP_READER_BEGIN( center, bufs [0] );
-	
+
 	for ( ; count; --count )
 	{
 		blargg_long s = BLIP_READER_READ( center );
 		if ( (int16_t) s != s )
 			s = 0x7FFF - (s >> 24);
-		
+
 		BLIP_READER_NEXT( center, bass );
 		out [0] = s;
 		out [1] = s;
 		out += 2;
 	}
-	
+
 	BLIP_READER_END( center, bufs [0] );
 }
