@@ -12,10 +12,10 @@ class Scc_Apu {
 public:
 	// Set buffer to generate all sound into, or disable sound if NULL
 	void output( Blip_Buffer* );
-	
+
 	// Reset sound chip
 	void reset();
-	
+
 	// Write to register at specified time
 	enum { reg_count = 0x90 };
 	void write( blip_time_t time, int reg, int data );
@@ -53,7 +53,7 @@ private:
 	blip_time_t last_time;
 	unsigned char regs [reg_count];
 	Blip_Synth<blip_med_quality,1> synth;
-	
+
 	void run_until( blip_time_t );
 };
 
@@ -96,10 +96,10 @@ inline Scc_Apu::Scc_Apu()
 inline void Scc_Apu::reset()
 {
 	last_time = 0;
-	
+
 	for ( int i = 0; i < osc_count; i++ )
 		blarg_memset( &oscs [i], 0, offsetof (osc_t,output) );
-	
+
 	blarg_memset( regs, 0, sizeof regs );
 }
 

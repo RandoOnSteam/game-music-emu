@@ -34,6 +34,8 @@ using std::max;
 
 Gb_Apu::Gb_Apu()
 {
+	blarg_memset(regs, 0, sizeof(regs));
+
 	square1.synth = &square_synth;
 	square2.synth = &square_synth;
 	wave.synth  = &other_synth;

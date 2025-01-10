@@ -8,16 +8,16 @@
 
 struct SPC_Filter {
 public:
-	
+
 	// Filters count samples of stereo sound in place. Count must be a multiple of 2.
 	typedef short sample_t;
 	void run( sample_t* io, int count );
-	
+
 // Optional features
 
 	// Clears filter to silence
 	void clear();
-	
+
 	// Sets gain (volume), where gain_unit is normal. Gains greater than gain_unit
 	// are fine, since output is clamped to 16-bit sample range.
 	enum { gain_unit = 0x100 };

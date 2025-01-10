@@ -79,7 +79,7 @@ void Sms_Square::run( blip_time_t time, blip_time_t end_time )
 				synth->offset( time, delta, output );
 			}
 		}
-		
+
 		time += delay;
 		if ( time < end_time )
 		{
@@ -116,7 +116,7 @@ void Sms_Noise::run( blip_time_t time, blip_time_t end_time )
 	int amp = volume;
 	if ( shifter & 1 )
 		amp = -amp;
-	
+
 	{
 		int delta = amp - last_amp;
 		if ( delta )
@@ -125,11 +125,11 @@ void Sms_Noise::run( blip_time_t time, blip_time_t end_time )
 			synth.offset( time, delta, output );
 		}
 	}
-	
+
 	time += delay;
 	if ( !volume )
 		time = end_time;
-	
+
 	if ( time < end_time )
 	{
 		Blip_Buffer* const output = this->output;
@@ -138,7 +138,7 @@ void Sms_Noise::run( blip_time_t time, blip_time_t end_time )
 		int period = *this->period * 2;
 		if ( !period )
 			period = 16;
-		
+
 		do
 		{
 			int changed = shifter + 1;
@@ -151,7 +151,7 @@ void Sms_Noise::run( blip_time_t time, blip_time_t end_time )
 			time += period;
 		}
 		while ( time < end_time );
-		
+
 		this->shifter = shifter;
 		this->last_amp = delta >> 1;
 	}
@@ -168,7 +168,7 @@ Sms_Apu::Sms_Apu()
 		oscs [i] = &squares [i];
 	}
 	oscs [3] = &noise;
-	
+
 	volume( 1.0 );
 	reset();
 }
@@ -211,7 +211,7 @@ void Sms_Apu::reset( unsigned feedback, int noise_width )
 {
 	last_time = 0;
 	latch = 0;
-	
+
 	if ( !feedback || !noise_width )
 	{
 		feedback = 0x0009;
@@ -225,7 +225,7 @@ void Sms_Apu::reset( unsigned feedback, int noise_width )
 		noise_feedback = (noise_feedback << 1) | (feedback & 1);
 		feedback >>= 1;
 	}
-	
+
 	squares [0].reset();
 	squares [1].reset();
 	squares [2].reset();
@@ -235,7 +235,7 @@ void Sms_Apu::reset( unsigned feedback, int noise_width )
 void Sms_Apu::run_until( blip_time_t end_time )
 {
 	require( end_time >= last_time ); // end_time must not be before previous time
-	
+
 	if ( end_time > last_time )
 	{
 		// run oscillators
@@ -251,7 +251,7 @@ void Sms_Apu::run_until( blip_time_t end_time )
 					noise.run( last_time, end_time );
 			}
 		}
-		
+
 		last_time = end_time;
 	}
 }
@@ -260,7 +260,7 @@ void Sms_Apu::end_frame( blip_time_t end_time )
 {
 	if ( end_time > last_time )
 		run_until( end_time );
-	
+
 	assert( last_time >= end_time );
 	last_time -= end_time;
 }
@@ -268,9 +268,9 @@ void Sms_Apu::end_frame( blip_time_t end_time )
 void Sms_Apu::write_ggstereo( blip_time_t time, int data )
 {
 	require( (unsigned) data <= 0xFF );
-	
+
 	run_until( time );
-	
+
 	for ( int i = 0; i < osc_count; i++ )
 	{
 		Sms_Osc& osc = *oscs [i];
@@ -298,12 +298,12 @@ static unsigned char const volumes [16] = {
 void Sms_Apu::write_data( blip_time_t time, int data )
 {
 	require( (unsigned) data <= 0xFF );
-	
+
 	run_until( time );
-	
+
 	if ( data & 0x80 )
 		latch = data;
-	
+
 	int index = (latch >> 5) & 3;
 	if ( latch & 0x10 )
 	{
@@ -324,7 +324,7 @@ void Sms_Apu::write_data( blip_time_t time, int data )
 			noise.period = &noise_periods [select];
 		else
 			noise.period = &squares [2].period;
-		
+
 		noise.feedback = (data & 0x04) ? noise_feedback : looped_feedback;
 		noise.shifter = 0x8000;
 	}

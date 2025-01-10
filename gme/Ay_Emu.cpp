@@ -224,6 +224,7 @@ blargg_err_t Ay_Emu::start_track_( int track )
 		//debug_printf( "addr: $%04X, len: $%04X\n", addr, len );
 		if ( addr < ram_start && addr >= 0x400 ) // several tracks use low data
 			debug_printf( "Block addr in ROM\n" );
+
 		blarg_memcpy( mem.ram + addr, in, len );
 
 		if ( file.end - blocks < 8 )
@@ -265,6 +266,7 @@ blargg_err_t Ay_Emu::start_track_( int track )
 	mem.ram [3] = init >> 8;
 
 	mem.ram [0x38] = 0xFB; // Put EI at interrupt vector (followed by RET)
+
 
 	blarg_memcpy( mem.ram + 0x10000, mem.ram, 0x80 ); // some code wraps around (ugh)
 

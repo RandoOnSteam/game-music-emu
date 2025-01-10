@@ -96,39 +96,25 @@ Effects_Buffer::Effects_Buffer( int num_voices, bool center_only )
 Effects_Buffer::~Effects_Buffer()
 {}
 
-blargg_err_t Effects_Buffer::set_sample_rate( long rate, int msec )
+blargg_err_t Effects_Buffer::set_sample_rate( long rate, int msec ) noexcept
 {
-#ifndef WIKISERVER_VERSION
-	try
-#endif
+	for(int i=0; i<max_voices; i++)
 	{
-		for(int i=0; i<max_voices; i++)
+		if ( !echo_buf[i].size() )
 		{
-			if ( !echo_buf[i].size() )
-			{
-				echo_buf[i].resize( echo_size );
-			}
+			echo_buf[i].resize( echo_size );
+		}
 
-			if ( !reverb_buf[i].size() )
-			{
-				reverb_buf[i].resize( reverb_size );
-			}
+		if ( !reverb_buf[i].size() )
+		{
+			reverb_buf[i].resize( reverb_size );
+		}
+
+		if ( !echo_buf[i].size() || !reverb_buf[i].size() )
+		{
+			return "Out of memory";
 		}
 	}
-#ifndef WIKISERVER_VERSION
-#if defined(_MSC_VER) && _MSC_VER <= 1400 /* 2005 <= */
-	catch(...)
-	{
-		return "Out of memory";
-	}
-#else
-	catch(std::bad_alloc& ba)
-	{
-		(void)(ba);
-		return "Out of memory";
-	}
-#endif
-#endif
 
 	for ( int i = 0; i < buf_count; i++ )
 		RETURN_ERR( bufs [i].set_sample_rate( rate, msec ) );
@@ -136,7 +122,8 @@ blargg_err_t Effects_Buffer::set_sample_rate( long rate, int msec )
 	config( config_ );
 	clear();
 
-	return Multi_Buffer::set_sample_rate( bufs [0].sample_rate(), bufs [0].length() );
+	return Multi_Buffer::set_sample_rate( bufs [0].sample_rate(),
+		bufs [0].length() );
 }
 
 void Effects_Buffer::clock_rate( long rate )

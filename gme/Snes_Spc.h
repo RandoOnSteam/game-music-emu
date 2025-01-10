@@ -64,6 +64,7 @@ public:
 	void disable_surround( bool disable = true );
 
 	void disable_echo( bool disable = true );
+
 	// Sets tempo, where tempo_unit = normal, tempo_unit / 2 = half speed, etc.
 	enum { tempo_unit = 0x100 };
 	void set_tempo( int );

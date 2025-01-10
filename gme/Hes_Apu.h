@@ -19,12 +19,12 @@ struct Hes_Osc
 	unsigned char balance;
 	unsigned char dac;
 	blip_time_t last_time;
-	
+
 	Blip_Buffer* outputs [2];
 	Blip_Buffer* chans [3];
 	unsigned noise_lfsr;
 	unsigned char control;
-	
+
 	enum { amp_range = 0x8000 };
 	typedef Blip_Synth<blip_med_quality,1> synth_t;
 	
@@ -44,9 +44,9 @@ public:
 	enum { start_addr = 0x0800 };
 	enum { end_addr   = 0x0809 };
 	void write_data( blip_time_t, int addr, int data );
-	
+
 	void end_frame( blip_time_t );
-	
+
 public:
 	Hes_Apu();
 private:
@@ -54,7 +54,7 @@ private:
 	int latch;
 	int balance;
 	Hes_Osc::synth_t synth;
-	
+
 	void balance_changed( Hes_Osc& );
 	void recalc_chans();
 };

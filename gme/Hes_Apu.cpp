@@ -287,14 +287,15 @@ void Hes_Apu::write_data( blip_time_t time, int addr, int data )
 			}
 			break;
 
-		 case 0x807:
-		 	if ( &osc >= &oscs [4] )
-		 		osc.noise = data;
-		 	break;
+		case 0x807:
+			if ( &osc >= &oscs [4] )
+				osc.noise = data;
+			break;
 
-		 case 0x809:
-		 	if ( !(data & 0x80) && (data & 0x03) != 0 )
-		 		debug_printf( "HES LFO not supported\n" );
+		case 0x809:
+			if ( !(data & 0x80) && (data & 0x03) != 0 )
+				debug_printf( "HES LFO not supported\n" );
+			break;
 		}
 	}
 }

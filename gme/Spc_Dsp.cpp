@@ -677,13 +677,13 @@ void Spc_Dsp::init( void* ram_64k )
 
 	// be sure right shift preserves sign
 	BOOST_STATIC_ASSERT( (-1 >> 1) == -1, "This compiler doesn't preserve sign on right-shift" );
-		
+
 	#ifndef NDEBUG
 		// check clamp macro
 		int i;
 		i = +0x8000; CLAMP16( i ); assert( i == +0x7FFF );
 		i = -0x8001; CLAMP16( i ); assert( i == -0x8000 );
-		
+
 		blargg_verify_byte_order();
 	#endif
 }

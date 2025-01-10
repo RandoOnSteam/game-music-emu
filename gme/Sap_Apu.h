@@ -56,10 +56,10 @@ private:
 class Sap_Apu_Impl {
 public:
 	Blip_Synth<blip_good_quality,1> synth;
-	
+
 	Sap_Apu_Impl();
 	void volume( double d ) { synth.volume( 1.0 / Sap_Apu::osc_count / 30 * d ); }
-	
+
 private:
 	typedef unsigned char byte;
 	byte poly4  [Sap_Apu::poly4_len  / 8 + 1];

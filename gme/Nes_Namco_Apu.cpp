@@ -30,8 +30,9 @@ void Nes_Namco_Apu::reset()
 
 	int i;
 	blarg_memset(reg, 0, reg_count * sizeof(uint8_t));
-	/*for ( i = 0; i < reg_count; i++ )
-		reg [i] = 0;*/
+	/* Why was this for loop commented out? */
+	for ( i = 0; i < reg_count; i++ )
+		reg [i] = 0;
 
 	for ( i = 0; i < osc_count; i++ )
 	{
