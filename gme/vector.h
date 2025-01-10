@@ -49,6 +49,31 @@
 */
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
+#if !defined(WSMemoryCopy) && !defined(WIKICMS_VERSION)
+	#include <string.h>
+	#define WSMemoryCopy memcpy
+	#define WSMemoryMove memmove
+	#define WSMemoryFill memset
+#endif
+#if !defined(DECLARE_MAXACCESSORS)
+	#if (!defined(ULONG_MAX) || (defined(SIZE_MAX) && ULONG_MAX != SIZE_MAX))
+		#define USE_MAXACCESSORS 1
+	#else
+		#define USE_MAXACCESSORS 0
+	#endif
+	#if USE_MAXACCESSORS
+		#define DECLARE_MAXACCESSORS(DATATYPE) \
+			DATATYPE& operator[](ptrdiff_t i) { return mData[i]; } \
+			const DATATYPE& operator[](ptrdiff_t i) const \
+			{ return (const DATATYPE&)mData[i]; } \
+			DATATYPE& operator[](size_t i) { return mData[i]; } \
+			const DATATYPE& operator[](size_t i) const \
+			{ return (const DATATYPE&)mData[i]; }
+	#else
+		#define DECLARE_MAXACCESSORS(DATATYPE)
+	#endif
+#endif
+
 #if defined(__cplusplus)
 /* malloc/free. Bring in placement new definition for compilers needing it. */
 #ifdef __GNUC__
@@ -271,9 +296,7 @@ public:
 	DATATYPE& operator[](unsigned long i) { return mData[i]; }
 	const DATATYPE& operator[](unsigned long i) const
 	{ return (const DATATYPE&)mData[i]; }
-	#if defined(DECLARE_MAXACCESSORS)
-		DECLARE_MAXACCESSORS(DATATYPE)
-	#endif
+	DECLARE_MAXACCESSORS(DATATYPE)
 protected:
 	void OnCopyItem(size_t where, const DATATYPE& item)
 	{ placement_new(((void*)&mData[where]), DATATYPE(item)); }
@@ -674,8 +697,8 @@ void FUNCNAME##_OnCopyItems(NAME* pThis, size_t loc, \
 void FUNCNAME##_OnDestroyItems(NAME* pThis, size_t loc, size_t amount)\
 {\
 	size_t i;\
-	for (i = where; i < where + amount; ++i)\
-	{	DESTROY(&mData[i]); }\
+	for (i = loc; i < loc + amount; ++i)\
+	{	DESTROY(&pThis->mData[i]); }\
 }
 
 
