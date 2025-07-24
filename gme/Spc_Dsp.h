@@ -48,6 +48,8 @@ public:
 	enum { voice_count = 8 };
 	void mute_voices( int mask );
 
+	int* const * voice_volumes() { return voice_volumes_; }
+
 	// If true, prevents channels and global volumes from being phase-negated
 	void disable_surround( bool disable = true );
 
@@ -148,6 +150,7 @@ private:
 		sample_t extra [extra_size];
 	};
 	state_t m;
+	int* voice_volumes_[voice_count];
 
 	void init_counter();
 	void run_counter( int );
@@ -168,6 +171,7 @@ inline int Spc_Dsp::read( int addr ) const
 
 inline void Spc_Dsp::update_voice_vol( int addr )
 {
+	int voiceindex;
 	int l = (int8_t) m.regs [addr + v_voll];
 	int r = (int8_t) m.regs [addr + v_volr];
 
@@ -178,10 +182,12 @@ inline void Spc_Dsp::update_voice_vol( int addr )
 		r ^= r >> 7;
 	}
 
-	voice_t& v = m.voices [addr >> 4];
+	voiceindex = addr >> 4;
+	voice_t& v = m.voices [voiceindex];
 	int enabled = v.enabled;
 	v.volume [0] = l & enabled;
 	v.volume [1] = r & enabled;
+	voice_volumes_[voiceindex] = v.volume;
 }
 
 inline void Spc_Dsp::write( int addr, int data )

@@ -109,13 +109,13 @@ struct BLARGG_EXPORT gme_info_t
 	int length;			/* total length, if file specifies it */
 	int intro_length;	/* length of song up to looping section */
 	int loop_length;	/* length of looping section */
-	
+
 	/* Length if available, otherwise intro_length+loop_length*2 if available,
 	otherwise a default of 150000 (2.5 minutes). */
 	int play_length;
-	
+
 	int i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15; /* reserved */
-	
+
 	/* empty string ("") if not available */
 	const char* system;
 	const char* game;
@@ -124,7 +124,7 @@ struct BLARGG_EXPORT gme_info_t
 	const char* copyright;
 	const char* comment;
 	const char* dumper;
-	
+
 	const char *s7,*s8,*s9,*s10,*s11,*s12,*s13,*s14,*s15; /* reserved */
 };
 
@@ -149,6 +149,9 @@ BLARGG_EXPORT int gme_voice_count( Music_Emu const* );
 /* Name of voice i, from 0 to gme_voice_count() - 1 */
 BLARGG_EXPORT const char* gme_voice_name( Music_Emu const*, int i );
 
+/* Left/Right volume of voice 1, from 0 to gme_voice_count() - 1 */
+BLARGG_EXPORT const int* gme_voice_volume( Music_Emu const*, int i );
+
 /* Mute/unmute voice i, where voice 0 is first voice */
 BLARGG_EXPORT void gme_mute_voice( Music_Emu*, int index, int mute );
 
@@ -162,7 +165,7 @@ typedef struct BLARGG_EXPORT gme_equalizer_t
 {
 	double treble; /* -50.0 = muffled, 0 = flat, +5.0 = extra-crisp */
 	double bass;   /* 1 = full bass, 90 = average, 16000 = almost no bass */
-	
+
 	double d2,d3,d4,d5,d6,d7,d8,d9; /* reserved */
 } gme_equalizer_t;
 

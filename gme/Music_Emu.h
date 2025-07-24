@@ -38,6 +38,9 @@ public:
 	// Number of voices used by currently loaded file
 	int voice_count() const;
 
+	// Current volumes of voices
+	const int** voice_volumes() const;
+
 	// Names of voices
 	const char** voice_names() const;
 
@@ -140,6 +143,7 @@ protected:
 	void set_silence_lookahead( int n )         { silence_lookahead = n; }
 	void set_voice_count( int n )               { voice_count_ = n; }
 	void set_voice_names( const char* const* names );
+	void set_voice_volumes( const int* const* vols);
 	void set_track_ended()                      { emu_track_ended_ = true; }
 	double gain() const                         { return gain_; }
 	double tempo() const                        { return tempo_; }
@@ -164,6 +168,7 @@ private:
 	equalizer_t equalizer_;
 	int max_initial_silence;
 	const char** voice_names_;
+	const int** voice_volumes_;
 	int voice_count_;
 	int mute_mask_;
 	double tempo_;
@@ -229,6 +234,7 @@ inline blargg_err_t Music_Emu::track_info( track_info_t* out ) const
 inline long Music_Emu::sample_rate() const          { return sample_rate_; }
 inline const char** Music_Emu::voice_names() const  { return voice_names_; }
 inline int Music_Emu::voice_count() const           { return voice_count_; }
+inline const int** Music_Emu::voice_volumes() const { return voice_volumes_; }
 inline int Music_Emu::current_track() const         { return current_track_; }
 inline bool Music_Emu::track_ended() const          { return track_ended_; }
 inline const Music_Emu::equalizer_t& Music_Emu::equalizer() const { return equalizer_; }
@@ -249,6 +255,12 @@ inline void Music_Emu::set_voice_names( const char* const* names )
 	// Intentional removal of const, so users don't have to remember obscure const in middle
 	voice_names_ = const_cast<const char**> (names);
 }
+
+inline void Music_Emu::set_voice_volumes( const int* const* vols)
+{
+	voice_volumes_ = const_cast<const int**> (vols);
+}
+
 
 inline void Music_Emu::mute_voices_( int ) { }
 

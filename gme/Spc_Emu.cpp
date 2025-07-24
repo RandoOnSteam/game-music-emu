@@ -43,6 +43,8 @@ Spc_Emu::Spc_Emu()
 	set_voice_names( names );
 
 	set_gain( 1.4 );
+
+	set_voice_volumes( apu.voice_volumes() );
 }
 
 Spc_Emu::~Spc_Emu() { }

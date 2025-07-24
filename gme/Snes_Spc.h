@@ -59,6 +59,8 @@ public:
 	enum { voice_count = 8 };
 	void mute_voices( int mask );
 
+	int* const * voice_volumes() { return dsp.voice_volumes(); }
+
 	// If true, prevents channels and global volumes from being phase-negated.
 	// Only supported by fast DSP.
 	void disable_surround( bool disable = true );

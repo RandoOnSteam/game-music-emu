@@ -661,6 +661,7 @@ void Spc_Dsp::mute_voices( int mask )
 Spc_Dsp::Spc_Dsp()
 {
 	blarg_memset(&m, 0, sizeof(state_t));
+	blarg_memset(&voice_volumes_, 0, sizeof(voice_volumes_));
 }
 
 void Spc_Dsp::init( void* ram_64k )
