@@ -185,6 +185,9 @@ BLARGG_EXPORT void gme_mute_voice( Music_Emu*, int index, int mute );
 voices, 0 unmutes them all, 0x01 mutes just the first voice, etc. */
 BLARGG_EXPORT void gme_mute_voices( Music_Emu*, int muting_mask );
 
+/* Obtains the current voice mute bitmask (see gme_mute_voices) */
+BLARGG_EXPORT int gme_mute_mask( Music_Emu* );
+
 /* Disable/Enable echo effect for SPC files */
 /* Available since 0.6.4 */
 BLARGG_EXPORT void gme_disable_echo( Music_Emu*, int disable );

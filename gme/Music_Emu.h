@@ -111,6 +111,8 @@ public:
 	// 0 unmutes them all, 0x01 mutes just the first voice, etc.
 	void mute_voices( int mask );
 
+	int mute_mask() { return mute_mask_; }
+
 	// Disables echo effect at SPC files
 	void disable_echo( bool disable );
 
