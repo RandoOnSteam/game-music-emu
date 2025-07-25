@@ -159,6 +159,7 @@ private:
 	M3u_Playlist playlist;
 	char playlist_warning [64];
 	blargg_vector<byte> file_data; // only if loaded into memory using default load
+	/* FIXME: Should tracks[x] be size_t instead of long? */
 	blargg_vector<long> tracks;    // file start indexes of `file_data`
 
 	blargg_err_t load_m3u_( blargg_err_t );

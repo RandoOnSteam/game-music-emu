@@ -60,11 +60,11 @@ blargg_err_t Gme_File::load_mem_( byte const* data, long size )
 blargg_err_t Gme_File::load_( Data_Reader& in )
 {
 	RETURN_ERR( file_data.resize( in.remain() ) );
-	RETURN_ERR( in.read( file_data.begin(), file_data.size() ) );
+	RETURN_ERR( in.read( file_data.begin(), (long)file_data.size() ) );
 	if ( type()->track_count == 1 )
 	{
 		RETURN_ERR( tracks.resize( 2 ) );
-		tracks[0] = 0, tracks[1] = file_data.size();
+		tracks[0] = 0, tracks[1] = (long)file_data.size();
 	}
 	return load_mem_( file_data.begin(), file_data.size() );
 }
