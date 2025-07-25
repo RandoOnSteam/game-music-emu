@@ -122,6 +122,7 @@
 	#define uint_fast8_t uint8_t
 	#define alignas(x) /* not supported */
 #endif
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -131,14 +132,12 @@
 #undef new /* conflicts with C++ stdlib */
 #endif
 
-#undef BLARGG_COMMON_H
 // allow blargg_config.h to #include blargg_common.h
 #include "blargg_config.h"
-#ifndef BLARGG_COMMON_H
-#define BLARGG_COMMON_H
 
 // BLARGG_RESTRICT: equivalent to restrict, where supported
-#if __GNUC__ >= 3 || _MSC_VER >= 1100
+#if (defined(__GNUC__) && (__GNUC__ >= 3)) || \
+    (defined(_MSC_VER) && (_MSC_VER >= 1100))
 	#define BLARGG_RESTRICT __restrict
 #else
 	#define BLARGG_RESTRICT
@@ -159,6 +158,13 @@
 #ifndef blargg_err_t
 	typedef const char* blargg_err_t;
 #endif
+
+// Apply minus sign to unsigned type and prevent the warning being shown
+template<typename T>
+inline T uMinus(T in)
+{
+	return ~(in - 1);
+}
 
 // blargg_vector - very lightweight vector of POD types (no constructor/destructor)
 template<class T>
@@ -261,15 +267,6 @@ public:
 	typedef unsigned blargg_ulong;
 #endif
 
-// int8_t etc.
-
-// Apply minus sign to unsigned type and prevent the warning being shown
-	template<typename T>
-	inline T uMinus(T in)
-	{
-		return ~(in - 1);
-	}
-
 #if __GNUC__ >= 3
 	#define BLARGG_DEPRECATED __attribute__ ((deprecated))
 #else
@@ -283,5 +280,4 @@ public:
 	#define BLARGG_PURE( def ) def
 #endif
 
-#endif
 #endif

@@ -153,7 +153,7 @@ long Stereo_Buffer::read_samples( blip_sample_t* out, long count )
 	return count * 2;
 }
 
-void Stereo_Buffer::mix_stereo( blip_sample_t* out_, blargg_long count )
+void Stereo_Buffer::mix_stereo( blip_sample_t* out_, int32_t count )
 {
 	blip_sample_t* BLIP_RESTRICT out = out_;
 	int const bass = BLIP_READER_BASS( bufs [1] );
@@ -164,8 +164,8 @@ void Stereo_Buffer::mix_stereo( blip_sample_t* out_, blargg_long count )
 	for ( ; count; --count )
 	{
 		int c = BLIP_READER_READ( center );
-		blargg_long l = c + BLIP_READER_READ( left );
-		blargg_long r = c + BLIP_READER_READ( right );
+		int32_t l = c + BLIP_READER_READ( left );
+		int32_t r = c + BLIP_READER_READ( right );
 		if ( (int16_t) l != l )
 			l = 0x7FFF - (l >> 24);
 
@@ -186,7 +186,7 @@ void Stereo_Buffer::mix_stereo( blip_sample_t* out_, blargg_long count )
 	BLIP_READER_END( left, bufs [1] );
 }
 
-void Stereo_Buffer::mix_stereo_no_center( blip_sample_t* out_, blargg_long count )
+void Stereo_Buffer::mix_stereo_no_center( blip_sample_t* out_, int32_t count )
 {
 	blip_sample_t* BLIP_RESTRICT out = out_;
 	int const bass = BLIP_READER_BASS( bufs [1] );
@@ -195,11 +195,11 @@ void Stereo_Buffer::mix_stereo_no_center( blip_sample_t* out_, blargg_long count
 
 	for ( ; count; --count )
 	{
-		blargg_long l = BLIP_READER_READ( left );
+		int32_t l = BLIP_READER_READ( left );
 		if ( (int16_t) l != l )
 			l = 0x7FFF - (l >> 24);
 
-		blargg_long r = BLIP_READER_READ( right );
+		int32_t r = BLIP_READER_READ( right );
 		if ( (int16_t) r != r )
 			r = 0x7FFF - (r >> 24);
 
@@ -215,7 +215,7 @@ void Stereo_Buffer::mix_stereo_no_center( blip_sample_t* out_, blargg_long count
 	BLIP_READER_END( left, bufs [1] );
 }
 
-void Stereo_Buffer::mix_mono( blip_sample_t* out_, blargg_long count )
+void Stereo_Buffer::mix_mono( blip_sample_t* out_, int32_t count )
 {
 	blip_sample_t* BLIP_RESTRICT out = out_;
 	int const bass = BLIP_READER_BASS( bufs [0] );
@@ -223,7 +223,7 @@ void Stereo_Buffer::mix_mono( blip_sample_t* out_, blargg_long count )
 
 	for ( ; count; --count )
 	{
-		blargg_long s = BLIP_READER_READ( center );
+		int32_t s = BLIP_READER_READ( center );
 		if ( (int16_t) s != s )
 			s = 0x7FFF - (s >> 24);
 

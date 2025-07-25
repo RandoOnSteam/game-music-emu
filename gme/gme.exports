@@ -62,3 +62,7 @@ gme_disable_echo
 gme_set_fade_msecs
 gme_load_tracks
 gme_fixed_track_count
+
+# Since 0.6.5
+gme_seek_scaled
+gme_tell_scaled

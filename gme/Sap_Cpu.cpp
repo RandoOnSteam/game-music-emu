@@ -800,7 +800,7 @@ imm##op:
 			sap_time_t new_time = end_time_;
 			if ( !(status & st_i) && new_time > irq_time_ )
 				new_time = irq_time_;
-			blargg_long delta = s.base - new_time;
+			int32_t delta = s.base - new_time;
 			s.base = new_time;
 			s_time += delta;
 		}
@@ -865,7 +865,7 @@ imm##op:
 		status &= ~st_i;
 	handle_cli: {
 		this->r.status = status; // update externally-visible I flag
-		blargg_long delta = s.base - irq_time_;
+		int32_t delta = s.base - irq_time_;
 		if ( delta <= 0 )
 		{
 			if ( TIME < irq_time_ )
@@ -896,7 +896,7 @@ imm##op:
 		status |= st_i;
 	handle_sei: {
 		this->r.status = status; // update externally-visible I flag
-		blargg_long delta = s.base - end_time_;
+		int32_t delta = s.base - end_time_;
 		s.base = end_time_;
 		s_time += delta;
 		if ( s_time < 0 )
@@ -963,7 +963,7 @@ interrupt:
 		status |= st_i;
 		this->r.status = status; // update externally-visible I flag
 
-		blargg_long delta = s.base - end_time_;
+		int32_t delta = s.base - end_time_;
 		s.base = end_time_;
 		s_time += delta;
 		goto loop;

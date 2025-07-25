@@ -8,7 +8,6 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := libgme
 
-LOCAL_CPP_FEATURES := exceptions
 #LOCAL_SANITIZE := undefined
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/gme
@@ -24,7 +23,6 @@ GME_ZLIB=Y
 
 LOCAL_CFLAGS := -O2 -Wall \
 	-DBLARGG_LITTLE_ENDIAN=1 \
-	-DBLARGG_BUILD_DLL \
 	-DLIBGME_VISIBILITY \
 	-fwrapv \
 	-fvisibility=hidden \

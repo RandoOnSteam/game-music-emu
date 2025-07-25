@@ -56,7 +56,8 @@ else()
     set(GME_BUILD_SHARED_DEFAULT ON)
 endif()
 
-option(GME_BUILD_SHARED "Build shared library (set to OFF for static library)" ${GME_BUILD_SHARED_DEFAULT})
+option(GME_BUILD_SHARED "Build shared library" ${GME_BUILD_SHARED_DEFAULT})
+option(GME_BUILD_STATIC "Build static library" ON)
 option(GME_BUILD_FRAMEWORK "Build framework instead of dylib on macOS" ${BUILD_FRAMEWORK})
 
 option(GME_ENABLE_UBSAN "Enable Undefined Behavior Sanitizer error-checking" ${ENABLE_UBSAN})
@@ -84,6 +85,13 @@ if(CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
     if(CMAKE_COMPILER_IS_GNUCXX)
         add_definitions(-D_GLIBCXX_DEBUG=1 -D_GLIBCXX_ASSERTIONS=1)
     endif()
+endif()
+
+# c++ tweaks
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -fno-exceptions")
+elseif(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
 endif()
 
 # Check for GCC/Clang "visibility" support.
