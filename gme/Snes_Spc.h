@@ -60,8 +60,8 @@ public:
 	void mute_voices( int mask );
 
 	int* const * voice_volumes() { return dsp.voice_volumes(); }
-	const int* voice_notes() {return dsp.voice_notes(); }
-	const int* voice_note_states() {return dsp.voice_note_states(); }
+	const int* voice_keycodes() {return dsp.voice_keycodes(); }
+	const int* voice_states() {return dsp.voice_states(); }
 	const int* voice_programs() {return dsp.voice_programs(); }
 
 	// If true, prevents channels and global volumes from being phase-negated.

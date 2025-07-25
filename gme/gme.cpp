@@ -418,16 +418,16 @@ const int* gme_voice_volume( Music_Emu const* me, int i )
 	return me->voice_volumes() [i];
 }
 
-int gme_voice_note( Music_Emu const* me, int i )
+int gme_voice_keycode( Music_Emu const* me, int i )
 {
 	assert( (unsigned) i < (unsigned) me->voice_count() );
-	return me->voice_notes() [i];
+	return me->voice_keycodes() [i];
 }
 
-int gme_voice_note_state( Music_Emu const* me, int i )
+int gme_voice_state( Music_Emu const* me, int i )
 {
 	assert( (unsigned) i < (unsigned) me->voice_count() );
-	return me->voice_note_states() [i];
+	return me->voice_states() [i];
 }
 
 int gme_voice_program( Music_Emu const* me, int i )

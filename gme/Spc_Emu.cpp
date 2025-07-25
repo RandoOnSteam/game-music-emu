@@ -46,9 +46,9 @@ Spc_Emu::Spc_Emu()
 
 	set_voice_volumes( apu.voice_volumes() );
 
-	set_voice_notes( apu.voice_notes() );
+	set_voice_keycodes( apu.voice_keycodes() );
 
-	set_voice_note_states( apu.voice_note_states() );
+	set_voice_states( apu.voice_states() );
 
 	set_voice_programs( apu.voice_programs() );
 }

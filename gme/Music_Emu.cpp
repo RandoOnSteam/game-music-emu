@@ -104,8 +104,8 @@ Music_Emu::Music_Emu()
 
 	set_voice_names( names );
 	set_voice_volumes( volumes );
-	set_voice_notes( notes);
-	set_voice_note_states( note_states);
+	set_voice_keycodes( notes);
+	set_voice_states( note_states);
 	set_voice_programs( programs );
 	Music_Emu::unload(); // non-virtual
 }
