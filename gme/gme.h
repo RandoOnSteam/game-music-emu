@@ -152,6 +152,12 @@ BLARGG_EXPORT const char* gme_voice_name( Music_Emu const*, int i );
 /* Left/Right volume of voice 1, from 0 to gme_voice_count() - 1 */
 BLARGG_EXPORT const int* gme_voice_volume( Music_Emu const*, int i );
 
+/* Current note in voice, from 0 to gme_voice_count() - 1 */
+BLARGG_EXPORT int gme_voice_note( Music_Emu const*, int i );
+
+/* Whether the note is currently playing, from 0 to gme_voice_count() - 1 */
+BLARGG_EXPORT int gme_voice_note_state( Music_Emu const*, int i );
+
 /* Mute/unmute voice i, where voice 0 is first voice */
 BLARGG_EXPORT void gme_mute_voice( Music_Emu*, int index, int mute );
 

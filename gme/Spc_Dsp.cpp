@@ -257,6 +257,8 @@ void Spc_Dsp::run( int clock_count )
 			int pitch = GET_LE16A( &VREG(v_regs,pitchl) ) & 0x3FFF;
 			if ( REG(pmon) & vbit )
 				pitch += ((pmon_input >> 5) * pitch) >> 10;
+			voice_notes_[v - m.voices] = (pitch * 128) / 16384;
+			voice_note_states_[v - m.voices] = !m.t_koff;
 
 			// KON phases
 			if ( --kon_delay >= 0 )
@@ -662,6 +664,8 @@ Spc_Dsp::Spc_Dsp()
 {
 	blarg_memset(&m, 0, sizeof(state_t));
 	blarg_memset(&voice_volumes_, 0, sizeof(voice_volumes_));
+	blarg_memset(&voice_notes_, 0, sizeof(voice_notes_));
+	blarg_memset(&voice_note_states_, 0, sizeof(voice_note_states_));
 }
 
 void Spc_Dsp::init( void* ram_64k )

@@ -85,12 +85,22 @@ Music_Emu::Music_Emu()
 		"Voice 5", "Voice 6", "Voice 7", "Voice 8"
 	};
 	static int volume [] = {0, 0};
-	static int const* volumes [8] = {
+	static int const* volumes [] = {
 		volume, volume, volume, volume,
 		volume, volume, volume, volume
 	};
+	static int notes [] = {
+		0, 0, 0, 0,
+		0, 0, 0, 0
+	};
+	static int note_states [] = {
+		0, 0, 0, 0,
+		0, 0, 0, 0
+	};
 	set_voice_names( names );
 	set_voice_volumes( volumes );
+	set_voice_notes( notes);
+	set_voice_note_states( note_states);
 	Music_Emu::unload(); // non-virtual
 }
 

@@ -418,6 +418,18 @@ const int* gme_voice_volume( Music_Emu const* me, int i )
 	return me->voice_volumes() [i];
 }
 
+int gme_voice_note( Music_Emu const* me, int i )
+{
+	assert( (unsigned) i < (unsigned) me->voice_count() );
+	return me->voice_notes() [i];
+}
+
+int gme_voice_note_state( Music_Emu const* me, int i )
+{
+	assert( (unsigned) i < (unsigned) me->voice_count() );
+	return me->voice_note_states() [i];
+}
+
 const char* gme_type_system( gme_type_t type )
 {
 	assert( type );

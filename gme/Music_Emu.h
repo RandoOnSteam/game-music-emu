@@ -41,6 +41,12 @@ public:
 	// Current volumes of voices
 	const int** voice_volumes() const;
 
+	// Note number of current voice note
+	const int* voice_notes() const {return voice_notes_; }
+
+	// Whether voice note is currently playing
+	const int* voice_note_states() const {return voice_note_states_; }
+
 	// Names of voices
 	const char** voice_names() const;
 
@@ -143,7 +149,9 @@ protected:
 	void set_silence_lookahead( int n )         { silence_lookahead = n; }
 	void set_voice_count( int n )               { voice_count_ = n; }
 	void set_voice_names( const char* const* names );
-	void set_voice_volumes( const int* const* vols);
+	void set_voice_volumes( const int* const* vols );
+	void set_voice_notes( const int* notes );
+	void set_voice_note_states( const int* states );
 	void set_track_ended()                      { emu_track_ended_ = true; }
 	double gain() const                         { return gain_; }
 	double tempo() const                        { return tempo_; }
@@ -169,6 +177,8 @@ private:
 	int max_initial_silence;
 	const char** voice_names_;
 	const int** voice_volumes_;
+	int* voice_notes_;
+	int* voice_note_states_;
 	int voice_count_;
 	int mute_mask_;
 	double tempo_;
@@ -259,6 +269,16 @@ inline void Music_Emu::set_voice_names( const char* const* names )
 inline void Music_Emu::set_voice_volumes( const int* const* vols)
 {
 	voice_volumes_ = const_cast<const int**> (vols);
+}
+
+inline void Music_Emu::set_voice_notes( const int* notes)
+{
+	voice_notes_ = const_cast<int*> (notes);
+}
+
+inline void Music_Emu::set_voice_note_states( const int* states)
+{
+	voice_note_states_ = const_cast<int*> (states);
 }
 
 
