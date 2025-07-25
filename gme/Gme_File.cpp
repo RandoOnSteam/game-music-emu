@@ -66,7 +66,7 @@ blargg_err_t Gme_File::load_( Data_Reader& in )
 		RETURN_ERR( tracks.resize( 2 ) );
 		tracks[0] = 0, tracks[1] = (long)file_data.size();
 	}
-	return load_mem_( file_data.begin(), file_data.size() );
+	return load_mem_( file_data.begin(), (long)file_data.size() );
 }
 
 // public load functions call this at beginning

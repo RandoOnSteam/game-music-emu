@@ -63,6 +63,7 @@ BLARGG_EXPORT void gme_set_fade_msecs( Music_Emu*, int start_msec, int length_ms
 BLARGG_EXPORT void gme_set_autoload_playback_limit( Music_Emu *, int do_autoload_limit );
 
 /** See gme_set_autoload_playback_limit.
+ * (This was actually added in 0.6.3, but wasn't exported because of a typo.)
  * @since 0.6.4
  */
 BLARGG_EXPORT int gme_autoload_playback_limit( Music_Emu const* );
@@ -190,7 +191,7 @@ BLARGG_EXPORT void gme_disable_echo( Music_Emu*, int disable );
 
 /* Frequency equalizer parameters (see gme.txt) */
 /* Implementers: If modified, also adjust Music_Emu::make_equalizer as needed */
-typedef struct BLARGG_EXPORT gme_equalizer_t
+typedef struct gme_equalizer_t
 {
 	double treble; /* -50.0 = muffled, 0 = flat, +5.0 = extra-crisp */
 	double bass;   /* 1 = full bass, 90 = average, 16000 = almost no bass */
@@ -242,7 +243,7 @@ BLARGG_EXPORT int gme_type_multitrack( gme_type_t );
 
 /* whether the pcm output retrieved by gme_play() will have all 8 voices rendered to their
  * individual stereo channel or (if false) these voices get mixed into one single stereo channel
- * @since 0.6.2 */
+ * @since 0.6.3 */
 BLARGG_EXPORT int gme_multi_channel( Music_Emu const* );
 
 /******** Advanced file loading ********/
@@ -287,6 +288,9 @@ BLARGG_EXPORT Music_Emu* gme_new_emu_multi_channel( gme_type_t, int sample_rate 
 
 /* Load music file into emulator */
 BLARGG_EXPORT gme_err_t gme_load_file( Music_Emu*, const char path [] );
+
+/* Load music file from memory into emulator. Makes a copy of data passed. */
+BLARGG_EXPORT gme_err_t gme_load_data( Music_Emu*, void const* data, long size );
 
 /* Load multiple single-track music files from memory into emulator.
  * @since 0.6.4
