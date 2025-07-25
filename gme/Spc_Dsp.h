@@ -49,8 +49,9 @@ public:
 	void mute_voices( int mask );
 
 	int* const * voice_volumes() { return voice_volumes_; }
-	const int* voice_notes() {return voice_notes_; }
-	const int* voice_note_states() {return voice_note_states_; }
+	const int* voice_notes() { return voice_notes_; }
+	const int* voice_note_states() { return voice_note_states_; }
+	const int* voice_programs() { return voice_programs_; }
 
 	// If true, prevents channels and global volumes from being phase-negated
 	void disable_surround( bool disable = true );
@@ -155,7 +156,7 @@ private:
 	int* voice_volumes_[voice_count];
 	int voice_notes_[voice_count];
 	int voice_note_states_[voice_count];
-
+	int voice_programs_[voice_count];
 
 	void init_counter();
 	void run_counter( int );

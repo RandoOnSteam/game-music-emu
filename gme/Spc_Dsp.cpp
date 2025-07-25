@@ -259,6 +259,7 @@ void Spc_Dsp::run( int clock_count )
 				pitch += ((pmon_input >> 5) * pitch) >> 10;
 			voice_notes_[v - m.voices] = (pitch * 128) / 16384;
 			voice_note_states_[v - m.voices] = !m.t_koff;
+			voice_programs_[v - m.voices] = VREG(v_regs,srcn);
 
 			// KON phases
 			if ( --kon_delay >= 0 )
@@ -291,6 +292,7 @@ void Spc_Dsp::run( int clock_count )
 			{
 				int output = 0;
 				VREG(v_regs,envx) = (uint8_t) (env >> 4);
+
 				if ( env )
 				{
 					// Make pointers into gaussian based on fractional position between samples
@@ -666,6 +668,7 @@ Spc_Dsp::Spc_Dsp()
 	blarg_memset(&voice_volumes_, 0, sizeof(voice_volumes_));
 	blarg_memset(&voice_notes_, 0, sizeof(voice_notes_));
 	blarg_memset(&voice_note_states_, 0, sizeof(voice_note_states_));
+	blarg_memset(&voice_programs_, 0, sizeof(voice_programs_));
 }
 
 void Spc_Dsp::init( void* ram_64k )

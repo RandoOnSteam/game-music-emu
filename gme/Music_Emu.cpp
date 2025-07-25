@@ -97,10 +97,16 @@ Music_Emu::Music_Emu()
 		0, 0, 0, 0,
 		0, 0, 0, 0
 	};
+	static int programs [] = {
+		0, 0, 0, 0,
+		0, 0, 0, 0
+	};
+
 	set_voice_names( names );
 	set_voice_volumes( volumes );
 	set_voice_notes( notes);
 	set_voice_note_states( note_states);
+	set_voice_programs( programs );
 	Music_Emu::unload(); // non-virtual
 }
 
