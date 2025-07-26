@@ -12,6 +12,8 @@
 
 #define GME_VERSION 0x000604 /* 1 byte major, 1 byte minor, 1 byte patch-level */
 
+#define GME_RANDOONSTEAMCUSTOM
+
 /* Error string returned by library functions, or NULL if no error (success) */
 typedef const char* gme_err_t;
 
