@@ -46,6 +46,8 @@ public:
 	
 	static gme_type_t static_type() { return gme_spc_type; }
 
+	const uint8_t* regs() const;
+
 public:
 	// deprecated
 	using Music_Emu::load;
@@ -68,6 +70,7 @@ protected:
 	void disable_echo_( bool disable );
 	void set_tempo_( double );
 	void enable_accuracy_( bool );
+	const uint8_t* regs_( ) { return regs(); }
 private:
 	byte const* file_data;
 	long        file_size;
@@ -78,6 +81,7 @@ private:
 	blargg_err_t play_and_filter( long count, sample_t out [] );
 };
 
+inline const uint8_t* Spc_Emu::regs() const { return apu.regs(); } 
 inline void Spc_Emu::disable_surround( bool b ) { apu.disable_surround( b ); }
 
 #endif

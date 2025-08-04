@@ -11,6 +11,8 @@ struct Music_Emu : public Gme_File {
 public:
 // Basic functionality (see Gme_File.h for file loading/track info functions)
 
+	const uint8_t* regs() { return regs_(); }
+
 	// Set output sample rate. Must be called only once before loading file.
 	blargg_err_t set_sample_rate( long sample_rate );
 
@@ -182,6 +184,7 @@ protected:
 	virtual void unload() override;
 	virtual void pre_load() override;
 	virtual void post_load_() override;
+	virtual const uint8_t* regs_( ) { return NULL; }
 private:
 	// general
 	equalizer_t equalizer_;
