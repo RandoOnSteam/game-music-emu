@@ -82,7 +82,15 @@
 #include <new.h>
 #endif
 #if !defined(WSASSERT)
-#define WSASSERT assert
+	#define WSASSERT assert
+	#define WSASSERTCLAMP(var, type) do {								\
+		if (((type)-1) < 0) { /* signed */								\
+			WSASSERT((var) >= -(1LL << (sizeof(type)*8 - 1)) &&			\
+					(var) <=  ((1LL << (sizeof(type)*8 - 1)) - 1));		\
+		} else { /* unsigned */											\
+			WSASSERT((var) <= ((type)-1));								\
+		}																\
+	} while(0)
 #endif
 
 #if defined(_MSC_VER) && defined(_DEBUG)
