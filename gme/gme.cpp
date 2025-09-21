@@ -406,6 +406,14 @@ void      gme_set_tempo      ( Music_Emu* me, double t )            { me->set_te
 void      gme_mute_voice     ( Music_Emu* me, int index, int mute ) { me->mute_voice( index, mute != 0 ); }
 void      gme_mute_voices    ( Music_Emu* me, int mask )            { me->mute_voices( mask ); }
 int		  gme_mute_mask		 ( Music_Emu* me )							{ return me->mute_mask(); }
+const uint8_t* gme_regs		 ( Music_Emu* me ) 
+{ 
+/*	#ifdef USE_GME_SPC
+		if(gme_type(me) == gme_spc_type)
+			return 
+	#endif*/
+	return me->regs(); 
+}
 void      gme_disable_echo   ( Music_Emu* me, int disable )         { me->disable_echo( disable ); }
 void      gme_enable_accuracy( Music_Emu* me, int enabled )         { me->enable_accuracy( enabled ); }
 void      gme_clear_playlist ( Music_Emu* me )                      { me->clear_playlist(); }

@@ -19,6 +19,8 @@ public:
 
 // Emulator use
 
+	const uint8_t* regs() const;
+
 	// Sets IPL ROM data. Library does not include ROM data. Most SPC music files
 	// don't need ROM, but a full emulator must provide this.
 	enum { rom_size = 0x40 };
@@ -264,6 +266,8 @@ private:
 };
 
 #include <assert.h>
+
+inline const uint8_t* Snes_Spc::regs() const { return dsp.regs(); }
 
 inline int Snes_Spc::sample_count() const { return (m.extra_clocks >> 5) * 2; }
 

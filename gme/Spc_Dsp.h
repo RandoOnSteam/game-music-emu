@@ -11,6 +11,8 @@ public:
 	Spc_Dsp();
 // Setup
 
+	const uint8_t* regs() const;
+
 	// Initializes DSP and has it use the 64K RAM provided
 	void init( void* ram_64k );
 
@@ -166,6 +168,8 @@ private:
 };
 
 #include <assert.h>
+
+inline const uint8_t* Spc_Dsp::regs() const { return m.regs; }
 
 inline int Spc_Dsp::sample_count() const { return (int)(m.out - m.out_begin); }
 
