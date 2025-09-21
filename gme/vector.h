@@ -82,7 +82,18 @@
 #include <new.h>
 #endif
 #if !defined(WSASSERT)
-#define WSASSERT assert
+	#define WSASSERT assert
+	#define WSASSERTCLAMP(var, type) do {	\
+		type _min, _max;							\
+		if ((type)-1 < 0) { /* signed */					\
+			_min = -(((ptrdiff_t)1) << (sizeof(type) * 8 - 1));			\
+			_max =  (((size_t)1) << (sizeof(type) * 8 - 1)) - 1;		\
+			WSASSERT(((ptrdiff_t)var) >= _min && ((ptrdiff_t)var) <= _max);	\
+		} else { /* unsigned */							\
+			_max = (type)-1;						\
+			WSASSERT((var) <= _max);					\
+		}								\
+	} while (0)
 #endif
 
 #if defined(_MSC_VER) && defined(_DEBUG)
