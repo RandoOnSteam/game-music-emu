@@ -1,3 +1,15 @@
+This is a modified version of the Game_Music_Emu library
+with changes to allow compilation on MSVC6 as
+well as additional SPC-specific functions for querying
+per-channel (per SPC channel/track) information.
+
+This version has
+
+#define GME_RANDOONSTEAMCUSTOM
+
+So check the presence of that if needing those additions.
+
+
 Game_Music_Emu 0.6.4: Game Music Emulators
 ------------------------------------------
 Game_Music_Emu is a collection of video game music file emulators that
@@ -239,3 +251,4 @@ Nuked OPN2 emulator copyright (C) 2017 Alexey Khokholov (Nuke.YKT)
 
 --
 Shay Green <gblargg@gmail.com>
+
