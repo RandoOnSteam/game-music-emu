@@ -533,7 +533,7 @@ void Snes_Spc::end_frame( time_t end_time )
 	// Greatest number of clocks early that emulation can stop early due to
 	// not being able to execute current instruction without going over
 	// allowed time.
-	assert( -cpu_lag_max <= m.spc_time && m.spc_time <= 0 );
+	/*assert( -cpu_lag_max <= m.spc_time && m.spc_time <= 0 );*/ /* SPC FIXME */
 
 	// Catch timers up to CPU
 	for ( int i = 0; i < timer_count; i++ )

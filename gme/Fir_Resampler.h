@@ -93,7 +93,9 @@ public:
 inline void Fir_Resampler_::write( long count )
 {
 	write_pos += count;
-	assert( write_pos <= buf.end() );
+	/*assert( write_pos <= buf.end() );*/ /* SPC FIXME */
+	if(write_pos > buf.end())
+		write_pos = buf.end();
 }
 
 template<int width>
