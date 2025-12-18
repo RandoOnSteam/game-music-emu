@@ -516,7 +516,7 @@ uint8_t* Snes_Spc::run_until_( time_t end_time )\
 #ifndef NDEBUG
 
 // Used only for assert
-static int const cpu_lag_max = 12 - 1; // DIV YA,X takes 12 clocks
+/*static int const cpu_lag_max = 12 - 1;*/ // DIV YA,X takes 12 clocks
 
 #endif
 
